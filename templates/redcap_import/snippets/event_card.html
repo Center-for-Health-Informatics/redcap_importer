@@ -1,0 +1,31 @@
+<div class="card border-primary">
+	<div class="card-header">
+		<div style="float:right">
+			{{ oEvent.get_count }}
+			{% if oEvent.repeatable %}
+				<i class="fa fa-repeat" aria-hidden="true"></i>
+			{% endif %}
+		</div>
+		<strong>{{ oEvent.label}}</strong>
+		({{ oEvent.unique_name  }})
+	</div>
+	<div class="card-body">
+		<table class="table">
+		    {% for oEI in oEvent.eventinstrument_set.all %}
+				<tr>
+					<td>{{ oEI.ordering }}</td>
+					<td>{{ oEI.instrument.label }}</td>
+					<td>
+						{{ oEI.instrument.unique_name }}
+					</td>
+					<td>
+						{% if oEI.repeatable %}
+							<i class="fa fa-repeat" aria-hidden="true"></i>
+						{% endif %}
+					</td>
+				</tr>
+		    {% endfor %}
+		</table>
+	</div>
+
+</div>

@@ -1,0 +1,24 @@
+{% if instrument.table %}
+	<hr>
+	<h4 class="text-primary">{{ instrument.label }} ({{ instrument.id }})</h4>
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<thead class="thead-light">
+				<tr>
+					{% for val in instrument.table.headers %}
+						<th>{{ val }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for record in instrument.table.data %}
+					<tr>
+						{% for val in record %}
+							<td>{{ val|truncatechars:100 }}</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>	
+	</div>
+{% endif %}

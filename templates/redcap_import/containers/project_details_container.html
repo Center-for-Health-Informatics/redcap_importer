@@ -1,0 +1,75 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+
+	<nav aria-label="breadcrumb">
+ 		<ol class="breadcrumb">
+    		<li class="breadcrumb-item"><a href="{% url 'redcap_import:home' %}">REDCap Connection List</a></li>
+    		<li class="breadcrumb-item active" aria-current="page">{{ oProject }}</li>
+  		</ol>
+	</nav>
+
+	<h1><span class="badge badge-info">{{ data_source }}</span> {{ oProject }}</h1>
+	
+	<hr>
+	<table class="table table-dark">
+		<thead>
+			<tr>
+				<th>Connection Name</th>
+				<th>Django App Name</th>
+				<th>API URL</th>
+				<th>Primary Key</th>
+				<th>{{ oProject.connection.primary_key_field }} Count</th>
+				<th>Project Title</th>
+				<th>Longitudinal?</th>
+				<th>Metadata Last Updated</th>
+				<th>Last Download from REDCap</th>
+				<th>Last Upload to REDCap</th>
+			</tr>
+		</thead>
+		<tbody>
+				<tr>
+					<td>{{ oProject.connection.name }}</td>
+					<td>{{ oProject.connection.django_app_name }}</td>
+					<td>{{ oProject.connection.api_url }}</td>
+					<td>{{ oProject.connection.primary_key_field }}</td>
+					<td>
+						{{ oProject.get_count }}
+					</td>
+					<td>
+						{{ oProject.connection.redcapproject.project_title }}
+					</td>
+					<td>{{ oProject.is_longitudinal }}</td>
+					<td>{{ oProject.date_last_updated_metadata }}</td>
+					<td>{{ oProject.date_last_downloaded_data|default_if_none:'[never]' }}</td>
+					<td>{{ oProject.date_last_uploaded_data|default_if_none:'[never]' }}</td>
+				</tr>
+		</tbody>
+	</table>
+	
+	<ul class="nav nav-tabs mb-4">
+		{% if oProject.is_longitudinal %}
+	  		<li class="nav-item">
+	    		<a class="nav-link {% if current_tab == 'events' %}active{% endif %}" 
+	    				href="{% url 'redcap_import:project_details_events' data_source oProject.id %}">
+	    			Events
+	    		</a>
+	  		</li>
+	  	{% endif %}
+  		<li class="nav-item">
+    		<a class="nav-link {% if current_tab == 'instruments' %}active{% endif %}" 
+    				href="{% url 'redcap_import:project_details_instruments' data_source oProject.id %}">
+    			Instruments
+    		</a>
+  		</li>
+  		<li class="nav-item">
+    		<a class="nav-link {% if current_tab == 'records' %}active{% endif %}" 
+    				href="{% url 'redcap_import:project_details_records' data_source oProject.id %}">
+    			Records
+    		</a>
+  		</li>
+	</ul>
+	
+	{% block content2 %}{% endblock %}
+	
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "redcap_import/containers/project_details_container.html" %}
+
+{% block content2 %}	
+
+
+
+	<div>
+		<h2>Instruments</h2>
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Label</th>
+					{% if not oProject.is_longitudinal %}
+						<th>Repeatable?</th>
+					{% endif %}
+					<th>Number of Fields</th>
+					<th>Number of Records</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for oInstrument in oProject.instrument_set.all %}
+					<tr>
+						<th>
+							<a href="{% url 'redcap_import:instrument_details' data_source oProject.id oInstrument.id %}">
+								{{ oInstrument.unique_name  }}
+							</a>
+						</th>
+						<td>{{ oInstrument.label }}</td>
+						{% if not oProject.is_longitudinal %}
+							<td>
+								{% if oInstrument.repeatable %}
+									yes
+								{% else %}
+									no
+								{% endif %}
+							</td>
+						{% endif %}
+						<td>{{ oInstrument.field_set.all.count }}</td>
+						<td>{{ oInstrument.get_count }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	
+
+{% endblock %}
+
+

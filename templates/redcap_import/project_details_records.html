@@ -1,0 +1,51 @@
+{% extends "redcap_import/containers/project_details_container.html" %}
+
+{% block content2 %}	
+
+	
+	<h2>Records</h2>
+	{% with pObj=qRoot %}
+		{% include 'core/pagination.html' %}
+	{% endwith %}
+	
+
+		
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Label</th>
+				{% if oProject.is_longitudinal %}
+					<th>Event Count</th>
+				{% endif %}
+				<th>Instrument Count</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for oRoot in qRoot %}
+				<tr>
+					<th>
+						<a href="{% url 'redcap_import:redcap_record' data_source oProject.id oRoot.get_id %}">
+							{{ oRoot.get_id  }}
+						</a>
+					</th>
+					<td>{{ oRoot.get_label  }}</td>
+					{% if oProject.is_longitudinal %}
+						<td>{{ oRoot.get_event_count }}</td>
+					{% endif %}
+					<td>{{ oRoot.get_instrument_count }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	
+	{% with pObj=qRoot %}
+		{% include 'core/pagination.html' %}
+	{% endwith %}
+	
+	
+	
+{% endblock %}
+
+
