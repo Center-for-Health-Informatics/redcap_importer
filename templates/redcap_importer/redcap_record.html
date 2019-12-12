@@ -4,9 +4,9 @@
 
 	<nav aria-label="breadcrumb">
  		<ol class="breadcrumb">
-    		<li class="breadcrumb-item"><a href="{% url 'redcap_import:home' %}">REDCap Connection List</a></li>
+    		<li class="breadcrumb-item"><a href="{% url 'redcap_importer:home' %}">REDCap Connection List</a></li>
     		<li class="breadcrumb-item">
-    			<a href="{% url 'redcap_import:project_details_records' data_source oProject.id %}">
+    			<a href="{% url 'redcap_importer:project_details_records' data_source oProject.id %}">
     				{{ oProject }}
     			</a>
     		</li>
@@ -32,14 +32,14 @@
 			{% for oEvent in oRoot.redcapevent_set.all %}
 		  		<div class="tab-pane {% if forloop.first %}active{% else %}fade{% endif %}" id="redcap-event-{{oEvent.id}}">
 		  			{% for instrument in oEvent.get_instrument_records %}
-						{% include 'redcap_import/snippets/single_record_instrument_tables.html' %}
+						{% include 'redcap_importer/snippets/single_record_instrument_tables.html' %}
 					{% endfor %}
 		  		</div>
 		  	{% endfor %}
 		</div>
 	{% else %}
 		{% for instrument in oRoot.get_instrument_records %}
-			{% include 'redcap_import/snippets/single_record_instrument_tables.html' %}
+			{% include 'redcap_importer/snippets/single_record_instrument_tables.html' %}
 		{% endfor %}
 	{% endif %}
 	

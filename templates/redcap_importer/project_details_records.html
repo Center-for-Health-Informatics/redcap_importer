@@ -1,4 +1,4 @@
-{% extends "redcap_import/containers/project_details_container.html" %}
+{% extends "redcap_importer/containers/project_details_container.html" %}
 
 {% block content2 %}	
 
@@ -25,7 +25,7 @@
 			{% for oRoot in qRoot %}
 				<tr>
 					<th>
-						<a href="{% url 'redcap_import:redcap_record' data_source oProject.id oRoot.get_id %}">
+						<a href="{% url 'redcap_importer:redcap_record' data_source oProject.id oRoot.get_id %}">
 							{{ oRoot.get_id  }}
 						</a>
 					</th>

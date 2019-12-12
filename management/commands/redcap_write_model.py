@@ -4,8 +4,8 @@ from django.core.management.base import BaseCommand, CommandError
 
 import requests
 
-from redcap_import import models
-# from redcap_import import helpers
+from redcap_importer import models
+# from redcap_importer import helpers
 
 
 class Command(BaseCommand):
@@ -34,7 +34,7 @@ class Command(BaseCommand):
         
     def print_import_code(self):
         print("from django.db import models")
-        print("from redcap_import.abstract_models import AbstractProjectRoot, AbstractRedcapEvent")
+        print("from redcap_importer.abstract_models import AbstractProjectRoot, AbstractRedcapEvent")
         self.print_blank_lines(2)
         
     def print_root_class(self, oProject):

@@ -16,7 +16,7 @@ def home(request):
     context = {
         'qConnection' : qConnection
     }
-    return render(request, 'redcap_import/home.html', context)
+    return render(request, 'redcap_importer/home.html', context)
 
 
 
@@ -29,8 +29,8 @@ def project_details_events(request, project_id, data_source='django'):
         'data_source' : data_source,
     }
     if oProject.count_arms() == 1:
-        return render(request, 'redcap_import/project_details_events.html', context)
-    return render(request, 'redcap_import/project_details_events_multi_arm.html', context)
+        return render(request, 'redcap_importer/project_details_events.html', context)
+    return render(request, 'redcap_importer/project_details_events_multi_arm.html', context)
 
 @login_required
 def project_details_instruments(request, project_id, data_source='django'):
@@ -40,7 +40,7 @@ def project_details_instruments(request, project_id, data_source='django'):
         'current_tab' : 'instruments',
         'data_source' : data_source,
     }
-    return render(request, 'redcap_import/project_details_instruments.html', context)
+    return render(request, 'redcap_importer/project_details_instruments.html', context)
 
 @login_required
 def project_details_records(request, project_id, data_source='django'):
@@ -55,7 +55,7 @@ def project_details_records(request, project_id, data_source='django'):
         'current_tab' : 'records',
         'data_source' : data_source,
     }
-    return render(request, 'redcap_import/project_details_records.html', context)
+    return render(request, 'redcap_importer/project_details_records.html', context)
 
 
 
@@ -69,7 +69,7 @@ def instrument_details(request, project_id, instrument_id, data_source='django')
         'oInstrument' : oInstrument,
         'data_source' : data_source,
     }
-    return render(request, 'redcap_import/instrument_details.html', context)
+    return render(request, 'redcap_importer/instrument_details.html', context)
 
 @login_required
 def field_details(request, project_id, field_id, data_source='django'):
@@ -86,7 +86,7 @@ def field_details(request, project_id, field_id, data_source='django'):
         'all_counts' : all_counts,
         'data_source' : data_source,
     }
-    return render(request, 'redcap_import/field_details.html', context)
+    return render(request, 'redcap_importer/field_details.html', context)
 
 @login_required
 def redcap_record(request, project_id, record_id, data_source='django'):
@@ -99,7 +99,7 @@ def redcap_record(request, project_id, record_id, data_source='django'):
         'oRoot' : oRoot,
         'data_source' : data_source,
     }
-    return render(request, 'redcap_import/redcap_record.html', context)
+    return render(request, 'redcap_importer/redcap_record.html', context)
     
     
     

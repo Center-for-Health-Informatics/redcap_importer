@@ -1,5 +1,5 @@
 
-{% extends "redcap_import/containers/project_details_container.html" %}
+{% extends "redcap_importer/containers/project_details_container.html" %}
 
 {% block content2 %}	
 	
@@ -7,7 +7,7 @@
 		<h2>Events</h2>
 		<div class="card-columns">
 			{% for oEvent in oProject.event_set.all %}
-				{% include 'redcap_import/snippets/event_card.html' %}
+				{% include 'redcap_importer/snippets/event_card.html' %}
 			{% endfor %}
 		</div>
 	{% endif %}

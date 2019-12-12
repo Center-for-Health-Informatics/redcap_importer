@@ -1,5 +1,5 @@
 
-{% extends "redcap_import/containers/project_details_container.html" %}
+{% extends "redcap_importer/containers/project_details_container.html" %}
 
 {% block content2 %}	
 
@@ -22,7 +22,7 @@
 	  			<div class="tab-pane {% if forloop.first %}active{% else %}fade{% endif %}" id="arm-tab-{{arm}}">
 	  				<div class="card-columns">
 		  				{% for oEvent in qEvent %}
-							{% include 'redcap_import/snippets/event_card.html' %}
+							{% include 'redcap_importer/snippets/event_card.html' %}
 						{% endfor %}
 					</div>
 	  			</div>

@@ -3,7 +3,7 @@
 
 2. Add to your project urls
 
-	path('redcap_import/', include(('redcap_import.urls', 'redcap_import'), namespace='redcap_import')),
+	path('redcap_importer/', include(('redcap_importer.urls', 'redcap_importer'), namespace='redcap_importer')),
 
 3. Create an app for each REDCap project you will connect to. You might want to identify this app with a name extension like '_staging'
 
@@ -19,7 +19,7 @@
 	primary_key_field: this will be the name of the very first field when you download the DD
 		- TODO: this value could be automatically grabbed
 	
-6. python manage.py redcap_get_dd myconn				# populates the other redcap_import tables
+6. python manage.py redcap_get_dd myconn				# populates the other redcap_importer tables
 
 7. python manage.py redcap_write_model myconn 		# outputs the model classes
 

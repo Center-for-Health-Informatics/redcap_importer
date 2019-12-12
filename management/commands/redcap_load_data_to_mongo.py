@@ -7,7 +7,7 @@ from django.apps import apps
 
 import requests
 
-from redcap_import import models
+from redcap_importer import models
 
 from pymongo import MongoClient
 

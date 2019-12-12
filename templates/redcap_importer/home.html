@@ -28,7 +28,7 @@
 					<td>{{ oConnection.projectmetadata.primary_key_field }}</td>
 					<td>
 						{% if oConnection.has_project %}
-							<a href="{% url 'redcap_import:project_details_events' oConnection.projectmetadata.id %}">
+							<a href="{% url 'redcap_importer:project_details_events' oConnection.projectmetadata.id %}">
 								{{ oConnection.projectmetadata.project_title }}
 							</a>
 						{% endif %}
@@ -37,7 +37,7 @@
 					<td>{{ oConnection.projectmetadata.date_last_updated_metadata }}</td>
 					<td>
 						{% if oConnection.redcapproject.date_last_downloaded_data %}
-							<a href="{% url 'redcap_import:project_details_events' 'django' oConnection.projectmetadata.id %}">
+							<a href="{% url 'redcap_importer:project_details_events' 'django' oConnection.projectmetadata.id %}">
 								{{ oConnection.projectmetadata.date_last_downloaded_data }}
 							</a>
 						{% else %}
@@ -47,7 +47,7 @@
 					</td>
 					<td>
 						{% if oConnection.redcapproject.date_last_downloaded_data_mongo %}
-							<a href="{% url 'redcap_import:project_details_events' 'mongo' oConnection.projectmetadata.id %}">
+							<a href="{% url 'redcap_importer:project_details_events' 'mongo' oConnection.projectmetadata.id %}">
 								{{ oConnection.projectmetadata.date_last_downloaded_data_mongo }}
 							</a>
 						{% else %}

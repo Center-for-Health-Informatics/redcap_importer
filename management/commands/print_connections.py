@@ -4,8 +4,8 @@ from django.core.management.base import BaseCommand, CommandError
 
 import requests
 
-from redcap_import import models
-# from redcap_import import helpers
+from redcap_importer import models
+# from redcap_importer import helpers
 
 
 class Command(BaseCommand):

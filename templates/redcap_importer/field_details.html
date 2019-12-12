@@ -4,14 +4,14 @@
 
 	<nav aria-label="breadcrumb">
  		<ol class="breadcrumb">
-    		<li class="breadcrumb-item"><a href="{% url 'redcap_import:home' %}">REDCap Connection List</a></li>
+    		<li class="breadcrumb-item"><a href="{% url 'redcap_importer:home' %}">REDCap Connection List</a></li>
     		<li class="breadcrumb-item">
-    			<a href="{% url 'redcap_import:project_details_events' data_source oProject.id %}">
+    			<a href="{% url 'redcap_importer:project_details_events' data_source oProject.id %}">
     				{{ oProject }}
     			</a>
     		</li>
     		<li class="breadcrumb-item">
-    			<a href="{% url 'redcap_import:instrument_details' data_source oProject.id oField.instrument.id %}">
+    			<a href="{% url 'redcap_importer:instrument_details' data_source oProject.id oField.instrument.id %}">
     				{{ oField.instrument }}
     			</a>
     		</li>
