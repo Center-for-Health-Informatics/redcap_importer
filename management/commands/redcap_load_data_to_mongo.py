@@ -29,12 +29,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         connection_name = options['connection_name']
         oConnection = models.RedcapConnection.objects.get(name=connection_name)
-        print(oConnection.redcapproject)
+        print(oConnection.name)
 
         # get mongo collection
-        mongo_client = MongoClient()
+        con = settings.REDCAP_IMPORTER_MONGO_CONNECTION_SETTINGS
+        mongo_client = MongoClient(**con)
         mongo_db = mongo_client[settings.REDCAP_IMPORTER_MONGO_DB_NAME]
-        mongo_collection = mongo_db[oConnection.django_app_name]
+        mongo_collection = mongo_db[oConnection.unique_name]
 
         #delete existing data
         count = mongo_collection.delete_many({}).deleted_count
@@ -42,11 +43,11 @@ class Command(BaseCommand):
 
         # get a list of all primary keys
         response = self.run_request('record', oConnection, {
-            'fields': oConnection.primary_key_field,
+            'fields': oConnection.projectmetadata.primary_key_field,
         })
         pk_list = []
         for entry in response:
-            pk = entry[oConnection.primary_key_field]
+            pk = entry[oConnection.projectmetadata.primary_key_field]
             if not pk in pk_list:
                 pk_list.append(pk)
 
@@ -56,18 +57,18 @@ class Command(BaseCommand):
                 'records[0]': pk,
             })
 
-            if oConnection.redcapproject.is_longitudinal:
+            if oConnection.projectmetadata.is_longitudinal:
                 for entry in response:
                     self.insert_longitudinal(entry, oConnection, mongo_collection)
             else:
                 for entry in response:
                     self.insert_non_longitudinal(entry, oConnection, mongo_collection)
-        oConnection.redcapproject.date_last_downloaded_data_mongo = datetime.datetime.now()
-        oConnection.redcapproject.save()
+        oConnection.projectmetadata.date_last_downloaded_data_mongo = datetime.datetime.now()
+        oConnection.projectmetadata.save()
 
     def insert_non_longitudinal(self, entry, oConnection, mongo_collection):
 
-        pk_field = oConnection.primary_key_field
+        pk_field = oConnection.projectmetadata.primary_key_field
 
         # create new record or get existing record
         filter = {'record_id' : entry[pk_field]}
@@ -79,39 +80,13 @@ class Command(BaseCommand):
             doc['instruments'] = {}
 
         # update instrument lists
-        if entry['redcap_repeat_instrument']:
-            # repeat instrument, have 1 instrument to load
-            oInstrumentMetadata = models.Instrument.objects.get(
-                project=oConnection.redcapproject, unique_name=entry['redcap_repeat_instrument']
-            )
-            instrument_list_name = oInstrumentMetadata.get_django_model_name()
-            if not instrument_list_name in doc['instruments']:
-                doc['instruments'][instrument_list_name] = []
-            instrument = oInstrumentMetadata.create_instrument_dict(entry)
-            print('##########################################')
-            if instrument:
-                for key, val in instrument.items():
-                    print(key, val)
-                doc['instruments'][instrument_list_name].append(instrument)
-        else:
-            # base_record, load all non-repeating instruments (verify not empty)
-            qInstrumentMetadata = oConnection.redcapproject.instrument_set.exclude(repeatable=True)
-            for oInstrumentMetadata in qInstrumentMetadata:
-                instrument_list_name = oInstrumentMetadata.get_django_model_name()
-                if not instrument_list_name in doc['instruments']:
-                    doc['instruments'][instrument_list_name] = []
-                instrument = oInstrumentMetadata.create_instrument_dict(entry)
-                print('##########################################')
-                if instrument:
-                    for key, val in instrument.items():
-                        print(key, val)
-                    doc['instruments'][instrument_list_name].append(instrument)
+        doc = update_instrument_lists(self, entry, doc, oConnection)
 
         # save document back to the database
         mongo_root.replace_one( filter, doc, upsert = True)
-
+        
     def insert_longitudinal(self, entry, oConnection, mongo_root):
-        pk_field = oConnection.primary_key_field
+        pk_field = oConnection.projectmetadata.primary_key_field
 
         # create new record or get existing record
         filter = {'record_id' : entry[pk_field]}
@@ -121,35 +96,114 @@ class Command(BaseCommand):
             doc['record_id'] = entry[pk_field]
             doc['record_id_name'] = pk_field
             doc['instruments'] = {}
+            doc['events'] = {}
 
         # update instrument lists
+        # doc = self.update_instrument_lists(entry, doc, oConnection)
+        doc = self.update_event_lists(entry, doc, oConnection)
+
+        # save document back to the database
+        mongo_root.replace_one( filter, doc, upsert = True)
+        
+    def update_event_lists(self, entry, doc, oConnection):
+        oEventMetadata = models.EventMetadata.objects.get(
+            project=oConnection.projectmetadata, 
+            unique_name=entry['redcap_event_name']
+        )
+        event_name = oEventMetadata.unique_name
+        
+        # get or create the event subdocument to use
+        if oEventMetadata.repeatable:
+            if not event_name in doc['events']:
+                doc['events'][event_name] = []
+                event_subdoc = doc['events'][event_name].append()
+            else:
+                event_subdoc = next(
+                    (item for item in doc['events'][event_name] if item['redcap_repeat_instance'] == entry['redcap_repeat_instance']), 
+                    {
+                        'redcap_repeat_instance' : entry['redcap_repeat_instance'],
+                        'event_label' : oEventMetadata.label,
+                        'arm_number' : oEventMetadata.arm.arm_number,
+                        'arm_name' : oEventMetadata.arm.arm_name,
+                    }
+                )               
+        else: # event not repeatable
+            if not event_name in doc['events']:
+                doc['events'][event_name] = {
+                    'event_label' : oEventMetadata.label,
+                    'arm_number' : oEventMetadata.arm.arm_number,
+                    'arm_name' : oEventMetadata.arm.arm_name,
+                }
+            event_subdoc = doc['events'][event_name]
+                
+        if not 'instruments' in event_subdoc:
+            event_subdoc['instruments'] = {}
+        
+        # now we can add instrument data to our event dict        
+        if entry['redcap_repeat_instrument'] and not oEventMetadata.repeatable:
+            # repeat instrument, have 1 instrument to load
+            oInstrumentMetadata = models.InstrumentMetadata.objects.get(
+                project=oConnection.projectmetadata, unique_name=entry['redcap_repeat_instrument']
+            )
+            instrument_list_name = oInstrumentMetadata.get_django_model_name()
+            if not instrument_list_name in event_subdoc['instruments']:
+                event_subdoc['instruments'][instrument_list_name] = []
+            instrument = oInstrumentMetadata.create_instrument_dict(entry)
+            if instrument:
+                event_subdoc['instruments'][instrument_list_name].append(instrument)
+        else:
+            # base_record, load all non-repeating instruments (verify not empty)
+            qInstrumentMetadata = models.InstrumentMetadata.objects.filter(eventinstrumentmetadata__event=oEventMetadata)
+            for oInstrumentMetadata in qInstrumentMetadata:
+                instrument_list_name = oInstrumentMetadata.get_django_model_name()
+                if not instrument_list_name in event_subdoc['instruments']:
+                    event_subdoc['instruments'][instrument_list_name] = []
+                instrument = oInstrumentMetadata.create_instrument_dict(entry)
+                if instrument:
+                    event_subdoc['instruments'][instrument_list_name].append(instrument)        
+        
+        return doc
+        
+    ##################################################################    
+        
+    def update_instrument_lists(self, entry, doc, oConnection):
         if entry['redcap_repeat_instrument']:
             # repeat instrument, have 1 instrument to load
-            oInstrumentMetadata = models.Instrument.objects.get(
-                project=oConnection.redcapproject, unique_name=entry['redcap_repeat_instrument']
+            oInstrumentMetadata = models.InstrumentMetadata.objects.get(
+                project=oConnection.projectmetadata, unique_name=entry['redcap_repeat_instrument']
             )
             instrument_list_name = oInstrumentMetadata.get_django_model_name()
             if not instrument_list_name in doc['instruments']:
-                doc[instrument_list_name] = []
+                doc['instruments'][instrument_list_name] = []
             instrument = oInstrumentMetadata.create_instrument_dict(entry)
-            print('##########################################')
             if instrument:
-#                 for key, val in instrument.items():
-#                     print(key, val)
                 doc['instruments'][instrument_list_name].append(instrument)
         else:
             # base_record, load all non-repeating instruments (verify not empty)
-            qInstrumentMetadata = oConnection.redcapproject.instrument_set.exclude(repeatable=True)
+            qInstrumentMetadata = oConnection.projectmetadata.instrumentmetadata_set.exclude(repeatable=True)
             for oInstrumentMetadata in qInstrumentMetadata:
                 instrument_list_name = oInstrumentMetadata.get_django_model_name()
                 if not instrument_list_name in doc['instruments']:
                     doc['instruments'][instrument_list_name] = []
                 instrument = oInstrumentMetadata.create_instrument_dict(entry)
-                print('##########################################')
                 if instrument:
-#                     for key, val in instrument.items():
-#                         print(key, val)
                     doc['instruments'][instrument_list_name].append(instrument)
+        return doc
 
-        # save document back to the database
-        mongo_root.replace_one( filter, doc, upsert = True)
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        

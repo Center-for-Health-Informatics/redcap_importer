@@ -7,6 +7,7 @@ from django.db import models
 from django.apps import apps
 
 from pymongo import MongoClient
+from django.conf import settings
 
 
 
@@ -61,7 +62,8 @@ class ProjectMetadata(models.Model):
         return RootModel
     
     def get_mongo_collection(self):
-        mongo_client = MongoClient()
+        con = settings.REDCAP_IMPORTER_MONGO_CONNECTION_SETTINGS
+        mongo_client = MongoClient(**con)
         mongo_db = mongo_client[self.connection.unique_name]
         return mongo_db.root
     
@@ -145,7 +147,7 @@ class EventMetadata(models.Model):
         )
         return oEvent
     
-    def get_actual_instrument_model(self):
+    def get_actual_event_model(self):
         app_name = self.project.connection.unique_name
         model_name = 'RedcapEvent'
         try:
@@ -155,10 +157,12 @@ class EventMetadata(models.Model):
         return EventModel
     
     def get_count(self):
-        EventModel = self.get_actual_instrument_model()
+        EventModel = self.get_actual_event_model()
         if EventModel:
             return EventModel.objects.filter(event_unique_name=self.unique_name).count()
         return 0
+    
+
     
     
             
