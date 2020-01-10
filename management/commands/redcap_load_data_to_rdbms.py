@@ -98,7 +98,7 @@ class Command(BaseCommand):
             unique_name=entry['redcap_event_name']
         )
         oEvent = oEventMetadata.get_or_create_event_record(oRoot)
-        if entry['redcap_repeat_instrument']:
+        if 'redcap_repeat_instrument' in entry and entry['redcap_repeat_instrument']:
             # repeat instrument, have 1 instrument to load
             oInstrumentMetadata = models.InstrumentMetadata.objects.get(
                 project=oConnection.projectmetadata, unique_name=entry['redcap_repeat_instrument']

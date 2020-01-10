@@ -138,7 +138,7 @@ class EventMetadata(models.Model):
     
     def get_or_create_event_record(self, oRoot):
         #!! TO DO: consider how repeatable entire events would work
-        EventModel = self.get_actual_instrument_model()
+        EventModel = self.get_actual_event_model()
         oEvent, created = EventModel.objects.get_or_create(
             project_root=oRoot,
             event_unique_name=self.unique_name,
