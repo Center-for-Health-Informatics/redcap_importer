@@ -14,36 +14,36 @@ class AbstractProjectRoot(models.Model):
         
     def __str__(self):
         oConn = self._get_connection()
-        return '{} = {}'.format(oConn.primary_key_field, self.get_id())
+        return '{} = {}'.format(oConn.projectmetadata.primary_key_field, self.get_id())
         
     def _get_connection(self):
         if hasattr(self, 'oConnection'):
             return self.oConnection
         app_name = self._meta.app_label
-        oConn = RedcapConnection.objects.get(django_app_name=app_name)
+        oConn = RedcapConnection.objects.get(unique_name=app_name)
         self.oConnection = oConn
         return oConn
     
     def get_id(self):
         oConn = self._get_connection()
-        field_name = oConn.primary_key_field
+        field_name = oConn.projectmetadata.primary_key_field
         return getattr(self, field_name)
     
     def get_label(self):
         oConn = self._get_connection()
-        field_name = oConn.primary_key_field + '_display'
+        field_name = oConn.projectmetadata.primary_key_field + '_display'
         return getattr(self, field_name)
     
     def is_longitudinal(self):
         oConn = self._get_connection()
-        return oConn.redcapproject.is_longitudinal
+        return oConn.projectmetadata.is_longitudinal
     
     def get_instrument_records(self):
         if self.is_longitudinal():
             raise TypeError('Cannot get instruments on the ProjectRoot in a longitudinal study.')
         oConn = self._get_connection()
         instrument_records = []
-        for oInstrumentMetadata in oConn.redcapproject.instrument_set.all():
+        for oInstrumentMetadata in oConn.projectmetadata.instrumentmetadata_set.all():
             Instrument = oInstrumentMetadata.get_actual_instrument_model()
             qInstrument = Instrument.objects.filter(project_root=self)
             instrument_records.append({
@@ -63,11 +63,11 @@ class AbstractProjectRoot(models.Model):
         oConn = self._get_connection()
         if self.is_longitudinal():
             for oEvent in self.redcapevent_set.all():
-                for oInstrumentMetadata in oConn.redcapproject.instrument_set.all():
+                for oInstrumentMetadata in oConn.projectmetadata.instrumentmetadata_set.all():
                     Instrument = oInstrumentMetadata.get_actual_instrument_model()
                     count += Instrument.objects.filter(redcap_event=oEvent).count()
         else:
-            for oInstrumentMetadata in oConn.redcapproject.instrument_set.all():
+            for oInstrumentMetadata in oConn.projectmetadata.instrumentmetadata_set.all():
                 Instrument = oInstrumentMetadata.get_actual_instrument_model()
                 count += Instrument.objects.filter(project_root=self).count()
         return count
@@ -91,14 +91,14 @@ class AbstractRedcapEvent(models.Model):
         if hasattr(self, 'oConnection'):
             return self.oConnection
         app_name = self._meta.app_label
-        oConn = RedcapConnection.objects.get(django_app_name=app_name)
+        oConn = RedcapConnection.objects.get(unique_name=app_name)
         self.oConnection = oConn
         return oConn
     
     def get_instrument_records(self):
         oConn = self._get_connection()
         instrument_records = []
-        for oInstrumentMetadata in oConn.redcapproject.instrument_set.all():
+        for oInstrumentMetadata in oConn.projectmetadata.instrumentmetadata_set.all():
             Instrument = oInstrumentMetadata.get_actual_instrument_model()
             qInstrument = Instrument.objects.filter(redcap_event=self)
             instrument_records.append({

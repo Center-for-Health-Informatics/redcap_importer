@@ -382,7 +382,8 @@ class FieldMetadata(models.Model):
             return False
         else:
             if not self.unique_name in entry:
-                print('field missing from data: {}'.format(self.unique_name))
+                # print('field missing from data: {}'.format(self.unique_name))
+                # there are fields that don't return a value because they are just a label or something
                 return False
             value = entry[self.unique_name]
             return False if value == '' else True
@@ -409,7 +410,8 @@ class FieldMetadata(models.Model):
                     oLookupModel.save()
         else:
             if not self.unique_name in entry:
-                print('field missing from data: {}'.format(self.unique_name))
+                # print('field missing from data: {}'.format(self.unique_name))
+                # there are fields that don't return a value because they are just a label or something
                 return 
             if entry[self.unique_name] == '':
                 return
@@ -430,15 +432,21 @@ class FieldMetadata(models.Model):
             setattr(oInstrument, self.get_django_field_name(), value)
             lookup = self.get_display_lookup()
             if lookup:
-                print('lookup')
-                print(self)
-                print(oInstrument)
-                print(entry)
-                print('---')
-                setattr(oInstrument, 
+#                 print('lookup')
+#                 print(lookup)
+#                 print(self)
+#                 print(oInstrument)
+#                 print(entry)
+#                 print('---')
+                try:
+                    setattr(oInstrument, 
                         self.get_django_field_name() + '_display_value', 
                         lookup[value.lower()]
-                )
+                    )
+                except KeyError:
+                    print( 'key error for {}: {} not in {}'.format( self, value.lower(), lookup ) )
+                    return
+                
     
 
 

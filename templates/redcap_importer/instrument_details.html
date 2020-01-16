@@ -56,7 +56,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for oField in oInstrument.field_set.all %}
+			{% for oField in oInstrument.fieldmetadata_set.all %}
 				{% with stats=oField.get_stats.0 %}
 					<tr>
 						<td>{{ oField.ordering }}</td>

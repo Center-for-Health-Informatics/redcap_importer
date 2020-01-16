@@ -22,7 +22,7 @@ def home(request):
 
 @login_required
 def project_details_events(request, project_id, data_source='django'):
-    oProject = get_object_or_404(models.RedcapProject, pk=project_id)
+    oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     context = {
         'oProject' : oProject,
         'current_tab' : 'events',
@@ -34,7 +34,7 @@ def project_details_events(request, project_id, data_source='django'):
 
 @login_required
 def project_details_instruments(request, project_id, data_source='django'):
-    oProject = get_object_or_404(models.RedcapProject, pk=project_id)
+    oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     context = {
         'oProject' : oProject,
         'current_tab' : 'instruments',
@@ -44,7 +44,7 @@ def project_details_instruments(request, project_id, data_source='django'):
 
 @login_required
 def project_details_records(request, project_id, data_source='django'):
-    oProject = get_object_or_404(models.RedcapProject, pk=project_id)
+    oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     ProjectRoot = oProject.get_actual_project_root_model()
     qRoot = ProjectRoot.objects.all()
     paginator = Paginator(qRoot, 20)
@@ -62,8 +62,8 @@ def project_details_records(request, project_id, data_source='django'):
 
 @login_required
 def instrument_details(request, project_id, instrument_id, data_source='django'):
-    oProject = get_object_or_404(models.RedcapProject, pk=project_id)
-    oInstrument = get_object_or_404(models.Instrument, pk=instrument_id)
+    oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
+    oInstrument = get_object_or_404(models.InstrumentMetadata, pk=instrument_id)
     context = {
         'oProject' : oProject,
         'oInstrument' : oInstrument,
@@ -73,8 +73,8 @@ def instrument_details(request, project_id, instrument_id, data_source='django')
 
 @login_required
 def field_details(request, project_id, field_id, data_source='django'):
-    oProject = get_object_or_404(models.RedcapProject, pk=project_id)
-    oField = get_object_or_404(models.Field, pk=field_id)
+    oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
+    oField = get_object_or_404(models.FieldMetadata, pk=field_id)
     field_values = oField.get_field_values()
     stats, all_counts = oField.get_stats()
         
@@ -90,7 +90,7 @@ def field_details(request, project_id, field_id, data_source='django'):
 
 @login_required
 def redcap_record(request, project_id, record_id, data_source='django'):
-    oProject = get_object_or_404(models.RedcapProject, pk=project_id)
+    oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     ProjectRoot = oProject.get_actual_project_root_model()
     oRoot = ProjectRoot.objects.get(pk=record_id)
     

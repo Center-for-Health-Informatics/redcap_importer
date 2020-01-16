@@ -11,7 +11,7 @@
 	</div>
 	<div class="card-body">
 		<table class="table">
-		    {% for oEI in oEvent.eventinstrument_set.all %}
+		    {% for oEI in oEvent.eventinstrumentmetadata_set.all %}
 				<tr>
 					<td>{{ oEI.ordering }}</td>
 					<td>{{ oEI.instrument.label }}</td>

@@ -19,7 +19,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{% for oInstrument in oProject.instrument_set.all %}
+				{% for oInstrument in oProject.instrumentmetadata_set.all %}
 					<tr>
 						<th>
 							<a href="{% url 'redcap_importer:instrument_details' data_source oProject.id oInstrument.id %}">
@@ -36,7 +36,7 @@
 								{% endif %}
 							</td>
 						{% endif %}
-						<td>{{ oInstrument.field_set.all.count }}</td>
+						<td>{{ oInstrument.fieldmetadata_set.all.count }}</td>
 						<td>{{ oInstrument.get_count }}</td>
 					</tr>
 				{% endfor %}

@@ -19,7 +19,7 @@
 				<th>Django App Name</th>
 				<th>API URL</th>
 				<th>Primary Key</th>
-				<th>{{ oProject.connection.primary_key_field }} Count</th>
+				<th>{{ oProject.primary_key_field }} Count</th>
 				<th>Project Title</th>
 				<th>Longitudinal?</th>
 				<th>Metadata Last Updated</th>
@@ -30,9 +30,9 @@
 		<tbody>
 				<tr>
 					<td>{{ oProject.connection.name }}</td>
-					<td>{{ oProject.connection.django_app_name }}</td>
+					<td>{{ oProject.connection.unique_name }}</td>
 					<td>{{ oProject.connection.api_url }}</td>
-					<td>{{ oProject.connection.primary_key_field }}</td>
+					<td>{{ oProject.primary_key_field }}</td>
 					<td>
 						{{ oProject.get_count }}
 					</td>
