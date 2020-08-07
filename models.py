@@ -12,6 +12,7 @@ from django.conf import settings
 
 
 
+
 class RedcapApiUrl(models.Model):
     name                        = models.CharField(max_length=255, unique=True)
     url                         = models.URLField(unique=True)
@@ -427,6 +428,17 @@ class FieldMetadata(models.Model):
                     except ValueError:
                         print('unable to convert string to date: {}'.format(date_str))
                         return
+            elif self.django_data_type == 'BooleanField':
+                x = entry[self.unique_name]
+                if x is True or x == 1 or x == '1':
+                    value = True
+                elif x is False or x == 0 or x == '0':
+                    value = False
+                elif x is None:
+                    value = None
+                else:
+                    print('Unrecognized value for boolean field, setting to None: {}'.format(entry[self.unique_name]))
+                    value = None
             else:
                 value = entry[self.unique_name]
             setattr(oInstrument, self.get_django_field_name(), value)
