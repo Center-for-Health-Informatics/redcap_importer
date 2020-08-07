@@ -1,0 +1,15 @@
+*.pyc
+__pycache__/
+
+.project
+.settings
+.pydevproject
+
+
+
+/media
+media/
+
+_static/
+
+env/
