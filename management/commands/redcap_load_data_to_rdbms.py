@@ -72,7 +72,7 @@ class Command(BaseCommand):
         ProjectRoot = apps.get_model(app_label=app_name, model_name='ProjectRoot')
         oRoot, created = ProjectRoot.objects.get_or_create(pk=entry[pk_field])
         # TO DO: set pk_label by looking up
-        if entry['redcap_repeat_instrument']:
+        if 'redcap_repeat_instrument' in entry and entry['redcap_repeat_instrument']:
             # repeat instrument, have 1 instrument to load
             oInstrumentMetadata = models.InstrumentMetadata.objects.get(
                 project=oConnection.projectmetadata, unique_name=entry['redcap_repeat_instrument']

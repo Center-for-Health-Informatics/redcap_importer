@@ -125,9 +125,15 @@ class Command(BaseCommand):
                         continue            # not sure what causes form for event to be missing, 
                                             # maybe I don't have permission or maybe event isn't setup
                     oInstrument = models.InstrumentMetadata.objects.get(project=oProject, unique_name=entry['form_name'])
-                    oEI = models.EventInstrumentMetadata.objects.get(event=oEvent, instrument=oInstrument)
-                    oEI.repeatable = True
-                    oEI.save()
+                    try:
+                        oEI = models.EventInstrumentMetadata.objects.get(event=oEvent, instrument=oInstrument)
+                        oEI.repeatable = True
+                        oEI.save()
+                    except:
+                        message = 'Warning: Intrument "{}" is listed as repeating on Event "{}", but the instrument isn\'t associated with that event. Ignoring.'.format(
+                            entry['form_name'], entry['event_name'], 
+                        ) 
+                        print(message)
             else:
                 for entry in response:
                     oInstrument = models.InstrumentMetadata.objects.get(unique_name=entry['form_name'])
