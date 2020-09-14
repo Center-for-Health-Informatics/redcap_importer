@@ -417,16 +417,24 @@ class FieldMetadata(models.Model):
             if entry[self.unique_name] == '':
                 return
             if self.django_data_type == 'FloatField':
-                value = float(entry[self.unique_name])
+                try:
+                    value = float(entry[self.unique_name])
+                except ValueError:
+                    print('unable to convert string to float for {}: {}'.format(self.get_django_field_name(), entry[self.unique_name]))
+                    return
             elif self.django_data_type == 'IntegerField':
-                value = int(entry[self.unique_name])
+                try:
+                    value = int(entry[self.unique_name])
+                except ValueError:
+                    print('unable to convert string to integer for {}: {}'.format(self.get_django_field_name(), entry[self.unique_name]))
+                    return
             elif self.django_data_type == 'DateField':
                 date_str = entry[self.unique_name]
                 if date_str:
                     try:
                         value = parse(date_str)
                     except ValueError:
-                        print('unable to convert string to date: {}'.format(date_str))
+                        print('unable to convert string to date for {}: {}'.format(self.get_django_field_name(), date_str))
                         return
             elif self.django_data_type == 'BooleanField':
                 x = entry[self.unique_name]
@@ -437,7 +445,7 @@ class FieldMetadata(models.Model):
                 elif x is None:
                     value = None
                 else:
-                    print('Unrecognized value for boolean field, setting to None: {}'.format(entry[self.unique_name]))
+                    print('Unrecognized value for boolean field for {}, setting to None: {}'.format(self.get_django_field_name(), entry[self.unique_name]))
                     value = None
             else:
                 value = entry[self.unique_name]
@@ -458,20 +466,3 @@ class FieldMetadata(models.Model):
                 except KeyError:
                     print( 'key error for {}: {} not in {}'.format( self, value.lower(), lookup ) )
                     return
-                
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
