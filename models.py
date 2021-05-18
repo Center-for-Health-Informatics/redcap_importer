@@ -21,10 +21,14 @@ class RedcapApiUrl(models.Model):
         return '{} ({})'.format(self.name, self.url)
     
 
+
+
 class RedcapConnection(models.Model):
     name                        = models.CharField(max_length=255, unique=True)
     unique_name                 = models.SlugField(unique=True,
                                         help_text='This will be the name of the Django app or Mongo collection')
+    partial_load                = models.BooleanField(default=False,
+                                        help_text='If True, only instruments in IncludeInstrument list will be loaded.')
     api_url                     = models.ForeignKey('RedcapApiUrl', on_delete=models.PROTECT)
     api_token                   = models.CharField(max_length=255)
 #     primary_key_field           = models.CharField(max_length=255,
@@ -35,7 +39,23 @@ class RedcapConnection(models.Model):
     
     def has_project(self):
         return hasattr(self, 'projectmetadata')
-    
+
+    def check_include_instrument(self, instrument_name):
+        if not self.partial_load:
+            return True
+        oInclude = IncludeInstrument.objects.filter(
+            connection=self, instrument_name=instrument_name
+        ).first()
+        return True if oInclude else False
+
+
+class IncludeInstrument(models.Model):
+    connection                  = models.ForeignKey('RedcapConnection', on_delete=models.CASCADE)
+    instrument_name             = models.CharField(max_length=255, help_text='unique_name of the instrument to include')
+
+    def __str__(self):
+        return "{}.{}".format(self.connection.unique_name, self.instrument_name)
+
 
 
 class ProjectMetadata(models.Model):
@@ -178,7 +198,6 @@ class EventInstrumentMetadata(models.Model):
     def __str__(self):
         return '{} : {}'.format(self.event, self.instrument)
     
-    
 class InstrumentMetadata(models.Model):
     project                     = models.ForeignKey('ProjectMetadata', on_delete=models.CASCADE)
     unique_name                 = models.CharField(max_length=255, help_text='unique for RedcapProject')
@@ -261,6 +280,16 @@ class InstrumentMetadata(models.Model):
             oField.add_value_to_instrument(oActualInstrument, entry)
         oActualInstrument.save()
         return oActualInstrument
+
+    def instrument_will_load(self):
+        oConnection = self.project.connection
+        if not oConnection.partial_load:
+            return True
+        oInclude = IncludeInstrument.objects.filter(
+            connection=oConnection,
+            instrument_name=self.unique_name,
+        ).first()
+        return True if oInclude else False
         
     
 class FieldMetadata(models.Model):

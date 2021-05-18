@@ -8,8 +8,13 @@ class RedcapApiUrlAdmin(admin.ModelAdmin):
     
 admin.site.register(models.RedcapApiUrl, RedcapApiUrlAdmin)
 
+class IncludeInstrumentAdmin(admin.TabularInline):    # can also use StackedInline
+	model = models.IncludeInstrument
+	extra = 3
+
 class RedcapConnectionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'unique_name',)
+    list_display = ('name', 'unique_name', 'partial_load',)
+    inlines = [IncludeInstrumentAdmin]
     
 admin.site.register(models.RedcapConnection, RedcapConnectionAdmin)
 
@@ -27,9 +32,19 @@ class EventMetadataAdmin(admin.ModelAdmin):
 admin.site.register(models.EventMetadata, EventMetadataAdmin)
 
 
+@admin.action(description='Include instruments during data load')
+def include_instruments(modeladmin, request, queryset):
+    for oInstrument in queryset:
+        oInclude, created = models.IncludeInstrument.objects.get_or_create(
+            connection = oInstrument.project.connection,
+            instrument_name = oInstrument.unique_name,
+        )
+
+
 class InstrumentMetadataAdmin(admin.ModelAdmin):
-    list_display = ('unique_name', 'project', 'label', 'unique_name', 'repeatable')
+    list_display = ('unique_name', 'project', 'label', 'unique_name', 'repeatable', 'instrument_will_load', )
     list_filter = ('project', )
+    actions = [include_instruments]
     
 admin.site.register(models.InstrumentMetadata, InstrumentMetadataAdmin)
 

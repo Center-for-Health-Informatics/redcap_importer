@@ -36,6 +36,7 @@ class Command(BaseCommand):
         models.EventMetadata.objects.all().delete()
         models.ArmMetadata.objects.all().delete()
         models.ProjectMetadata.objects.all().delete()
+        models.IncludeInstrument.objects.all().delete()
         models.RedcapConnection.objects.all().delete()
         models.RedcapApiUrl.objects.all().delete()
 

@@ -34,6 +34,7 @@ class Command(BaseCommand):
             "dumpdata",
             "redcap_importer.RedcapApiUrl",
             "redcap_importer.RedcapConnection",
+            "redcap_importer.IncludeInstrument",
             "redcap_importer.ProjectMetadata",
             "redcap_importer.ArmMetadata",
             "redcap_importer.EventMetadata",
