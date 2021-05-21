@@ -60,3 +60,8 @@ class FieldMetadataAdmin(admin.ModelAdmin):
     list_filter = ('instrument__project', 'instrument')
     
 admin.site.register(models.FieldMetadata, FieldMetadataAdmin)
+
+class EtlLogAdmin(admin.ModelAdmin):
+    list_display = ('redcap_project', 'status', 'start_date', 'end_date', 'get_duration', 'query_count', 'get_loaded_count')
+
+admin.site.register(models.EtlLog, EtlLogAdmin)

@@ -48,6 +48,14 @@ class RedcapConnection(models.Model):
         ).first()
         return True if oInclude else False
 
+    def get_instrument_names(self):
+        if not self.partial_load:
+            return None
+        response = []
+        for oInclude in IncludeInstrument.objects.filter(connection=self):
+            response.append(oInclude.instrument_name)
+        return response
+
 
 class IncludeInstrument(models.Model):
     connection                  = models.ForeignKey('RedcapConnection', on_delete=models.CASCADE)
@@ -495,3 +503,42 @@ class FieldMetadata(models.Model):
                 except KeyError:
                     print( 'key error for {}: {} not in {}'.format( self, value.lower(), lookup ) )
                     return
+
+
+class EtlLog(models.Model):
+    STATUS_ETL_STARTED = "ETL started"
+    STATUS_ETL_COMPLETE = "ETL completed"
+    STATUS_CHOICES = (
+        (STATUS_ETL_STARTED, STATUS_ETL_STARTED),
+        (STATUS_ETL_COMPLETE, STATUS_ETL_COMPLETE),
+    )
+    redcap_project = models.CharField(max_length=255)
+    start_date = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+
+    end_date = models.DateTimeField(blank=True, null=True)
+    instruments_loaded = models.TextField(blank=True, null=True)
+    query_count = models.IntegerField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+
+    @classmethod
+    def get_latest_record(cls):
+        oLog = cls.objects.order_by("-start_date").first()
+        return oLog
+
+    def get_duration(self):
+        if not self.start_date or not self.end_date:
+            return None
+        delta = self.end_date - self.start_date
+        delta = delta - datetime.timedelta(microseconds=delta.microseconds)
+        return delta
+
+    def get_loaded_count(self):
+        if not self.instruments_loaded:
+            return "all"
+        instruments = self.instruments_loaded.split("\n")
+        return len(instruments)
+
+
+    class Meta:
+        ordering = ["-start_date"]
