@@ -31,14 +31,15 @@ class EventMetadataAdmin(admin.ModelAdmin):
     
 admin.site.register(models.EventMetadata, EventMetadataAdmin)
 
-
-@admin.action(description='Include instruments during data load')
+# @admin.action not available before django 3.2
+# @admin.action(description='Include instruments during data load')
 def include_instruments(modeladmin, request, queryset):
     for oInstrument in queryset:
         oInclude, created = models.IncludeInstrument.objects.get_or_create(
             connection = oInstrument.project.connection,
             instrument_name = oInstrument.unique_name,
         )
+include_instruments.short_description = "Include instruments during data load"
 
 
 class InstrumentMetadataAdmin(admin.ModelAdmin):
