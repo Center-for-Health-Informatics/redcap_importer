@@ -508,9 +508,15 @@ class FieldMetadata(models.Model):
 class EtlLog(models.Model):
     STATUS_ETL_STARTED = "ETL started"
     STATUS_ETL_COMPLETE = "ETL completed"
+    STATUS_UPLOAD_STARTED = "upload started"
+    STATUS_UPLOAD_FAILED = "upload failed"
+    STATUS_UPLOAD_COMPLETE = "upload complete"
     STATUS_CHOICES = (
         (STATUS_ETL_STARTED, STATUS_ETL_STARTED),
         (STATUS_ETL_COMPLETE, STATUS_ETL_COMPLETE),
+        (STATUS_UPLOAD_STARTED, STATUS_UPLOAD_STARTED),
+        (STATUS_UPLOAD_FAILED, STATUS_UPLOAD_FAILED),
+        (STATUS_UPLOAD_COMPLETE, STATUS_UPLOAD_COMPLETE),
     )
     redcap_project = models.CharField(max_length=255)
     start_date = models.DateTimeField()
