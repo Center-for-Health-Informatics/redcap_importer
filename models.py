@@ -525,6 +525,7 @@ class EtlLog(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
     instruments_loaded = models.TextField(blank=True, null=True)
     query_count = models.IntegerField(blank=True, null=True)
+    user = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
     @classmethod
