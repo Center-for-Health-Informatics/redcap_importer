@@ -13,7 +13,7 @@ class IncludeInstrumentAdmin(admin.TabularInline):    # can also use StackedInli
 	extra = 3
 
 class RedcapConnectionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'unique_name', 'partial_load',)
+    list_display = ('unique_name', 'partial_load',)
     inlines = [IncludeInstrumentAdmin]
     
 admin.site.register(models.RedcapConnection, RedcapConnectionAdmin)

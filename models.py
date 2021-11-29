@@ -24,18 +24,25 @@ class RedcapApiUrl(models.Model):
 
 
 class RedcapConnection(models.Model):
-    name                        = models.CharField(max_length=255, unique=True)
     unique_name                 = models.SlugField(unique=True,
-                                        help_text='This will be the name of the Django app or Mongo collection')
+                                        help_text='A unique reference for this connection and associated Django app')
     partial_load                = models.BooleanField(default=False,
                                         help_text='If True, only instruments in IncludeInstrument list will be loaded.')
     api_url                     = models.ForeignKey('RedcapApiUrl', on_delete=models.PROTECT)
-    api_token                   = models.CharField(max_length=255)
-#     primary_key_field           = models.CharField(max_length=255,
-#                                         help_text='ex. record_id, study_id, etc.')
     
     def __str__(self):
-        return self.name
+        return self.unique_name
+
+    def get_api_token(self):
+        """
+        API tokens needs to be provided in the django settings file.
+        """
+        tokens = settings.REDCAP_API_TOKENS
+        if not tokens or self.unique_name not in tokens:
+            raise KeyError('No API key found for {} in your Django settings'.format(self.unique_name))
+        return tokens[self.unique_name]
+
+
     
     def has_project(self):
         return hasattr(self, 'projectmetadata')

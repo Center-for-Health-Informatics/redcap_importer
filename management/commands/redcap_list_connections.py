@@ -21,5 +21,5 @@ class Command(BaseCommand):
         
         qConnection = models.RedcapConnection.objects.all()
         for oConnection in qConnection:
-            print(oConnection.name)
+            print(oConnection.unique_name)
                 

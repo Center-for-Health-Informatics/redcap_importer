@@ -45,7 +45,7 @@ class Command(BaseCommand):
         
     def run_request(self, content, oConnection, addl_options={}):
         addl_options['content'] = content
-        addl_options['token'] = oConnection.api_token
+        addl_options['token'] = oConnection.get_api_token()
         addl_options['format'] = 'json'
         addl_options['returnFormat'] = 'json'
         self.query_count += 1

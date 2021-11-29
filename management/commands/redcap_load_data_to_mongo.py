@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     def run_request(self, content, oConnection, addl_options={}):
         addl_options['content'] = content
-        addl_options['token'] = oConnection.api_token
+        addl_options['token'] = oConnection.get_api_token()
         addl_options['format'] = 'json'
         addl_options['returnFormat'] = 'json'
         return requests.post(oConnection.api_url.url, addl_options).json()
@@ -29,7 +29,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         connection_name = options['connection_name']
         oConnection = models.RedcapConnection.objects.get(name=connection_name)
-        print(oConnection.name)
+        print(oConnection.unique_name)
 
         # get mongo collection
         con = settings.REDCAP_IMPORTER_MONGO_CONNECTION_SETTINGS
