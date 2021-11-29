@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         connection_name = options['connection_name']
-        oConnection = models.RedcapConnection.objects.get(name=connection_name)
+        oConnection = models.RedcapConnection.objects.get(unique_name=connection_name)
         print(oConnection.redcapproject)
         
 

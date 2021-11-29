@@ -27,7 +27,7 @@ class Command(BaseCommand):
         connection_name = options['connection_name']
         
         # get connection and delete existing project
-        oConnection = models.RedcapConnection.objects.get(name=connection_name)
+        oConnection = models.RedcapConnection.objects.get(unique_name=connection_name)
         oProject = oConnection.projectmetadata
         
         output = []

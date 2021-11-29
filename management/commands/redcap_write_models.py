@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         connection_name = options['connection_name']
-        oProject = models.RedcapConnection.objects.get(name=connection_name).projectmetadata
+        oProject = models.RedcapConnection.objects.get(unique_name=connection_name).projectmetadata
         
         self.print_import_code()
         self.print_root_class(oProject)

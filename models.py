@@ -6,7 +6,6 @@ from dateutil.parser import parse
 from django.db import models
 from django.apps import apps
 
-from pymongo import MongoClient
 from django.conf import settings
 
 
@@ -80,7 +79,6 @@ class ProjectMetadata(models.Model):
     has_multiple_arms           = models.BooleanField(default=False)
     date_last_updated_metadata  = models.DateTimeField(auto_now_add=True)
     date_last_downloaded_data   = models.DateTimeField(blank=True, null=True)
-    date_last_downloaded_data_mongo = models.DateTimeField(blank=True, null=True)
     date_last_uploaded_data     = models.DateTimeField(blank=True, null=True)
     primary_key_field           = models.CharField(max_length=255,
                                         help_text='ex. record_id, study_id, etc.')
@@ -97,15 +95,7 @@ class ProjectMetadata(models.Model):
             return None
         return RootModel
     
-    def get_mongo_collection(self):
-        con = settings.REDCAP_IMPORTER_MONGO_CONNECTION_SETTINGS
-        mongo_client = MongoClient(**con)
-        mongo_db = mongo_client[self.connection.unique_name]
-        return mongo_db.root
-    
     def get_project_queryset_or_collection(self, data_source):
-        if data_source == 'mongo':
-            return self.get_mongo_collection()
         ProjectRoot = self.get_actual_project_root_model()
         return ProjectRoot.objects.all()
     
@@ -114,10 +104,6 @@ class ProjectMetadata(models.Model):
         if MyModel:
             return MyModel.objects.all().count()
         return 0
-    
-    def get_count_mongo(self):
-        collection = self.get_mongo_collection()
-        return collection.find().count()
     
     def count_arms(self):
         arms = self.get_events_grouped_by_arm()
@@ -245,16 +231,6 @@ class InstrumentMetadata(models.Model):
             return MyModel.objects.all().count()
         return 0
     
-    def get_count_mongo(self):
-         # must be a faster way to do this
-        # https://stackoverflow.com/questions/32305897/mongodb-count-all-array-elements-in-all-objects-matching-by-criteria
-        collection = self.project.get_mongo_collection()
-        count = 0
-        for doc in collection.find():
-            if 'instruments' in doc and self.unique_name in doc['instruments']:
-                count += len( doc['instruments'][self.unique_name] )
-        return count
-    
     def create_instrument_dict(self, entry):
         response = {}
         data_exists = False
@@ -354,21 +330,6 @@ class FieldMetadata(models.Model):
                 self.get_django_field_name(), flat=True
             )
         return list(qField)
-    
-    def get_field_values_mongo(self):
-        response = []
-        collection = self.instrument.project.get_mongo_collection()
-        for doc in collection.find():
-            instrument = self.instrument.unique_name
-            field = self.unique_name
-            if 'instruments' in doc and instrument in doc['instruments']:
-                for record in doc['instruments'][instrument]:
-                    if field in record and record[field]:
-                        response.append(record[field])
-                    else:
-                        response.append(None)
-        return response
-
 
     
     def get_stats(self):
