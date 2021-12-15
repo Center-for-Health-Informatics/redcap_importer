@@ -1,0 +1,2 @@
+recursive-include redcap_importer/templates *
+recursive-include redcap_importer/management *
