@@ -51,10 +51,10 @@ You must already have a working Django project. See the
 
    - First you must provide the API URL in the RedcapApiUrl table. 
       - name: anything
-   - URL:  should be something like `https://redcap.research.cchmc.org/api/`.
+      - URL:  should be something like `https://redcap.research.cchmc.org/api/`.
    - Then in the RedcapConnection table, provide information about your project
       - unique_name: anything, but must be alphanumeric/dashes/underscores only
-        - note: This unique_name will be used to reference the REDCap project everywhere else in this tool.
+      - note: This unique_name will be used to reference the REDCap project everywhere else in this tool.
       - api_url: Select the URL to use
 
 6. Provide your REDCap API key
@@ -146,7 +146,7 @@ You can get a list of all changes since your last imported the data dictionary
 python manage.py redcap_change_report project1
 ```
 
-### Update your database with the latest version of the REDCap project
+To Update your database with the latest version of the REDCap project:
 
 1. import the data dictionary again
    ```
