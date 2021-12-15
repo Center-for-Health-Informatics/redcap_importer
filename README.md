@@ -13,54 +13,52 @@ code you need to build your database. The data schema is specific to the REDCap 
 
 You must already have a working Django project. See the [Django documentation](https://www.djangoproject.com/) for how to set up Django.
 
-### 1. Install the app from GitHub using pip
+### 1. Install the App
 
+Download the code from GitHub using pip
 ```
 pip install git+https://github.com/Center-for-Health-Informatics/redcap_importer.git#egg=redcap_importer
 ```
 
-### 2. Update your Django settings
-
+Update your Django `settings.py`
 ```python
-# in your Django settings.py
-
 INSTALLED_APPS = [
 	...
 	'redcap_importer',
 ]
+```
 
-# (optional) in your urls.py
-
+(optional) Update your urls.py to add redcap importer views
+```python
 urlpatterns = [
 	...
 	path('redcap_importer/', include(('redcap_importer.urls', 'redcap_importer'), namespace='redcap_importer')),
 ]
 ```
 
-### 3. Run migrations to install redcap_importer system tables
+Run migrations to install redcap_importer system tables
 
 ```
 python manage.py migrate
 ```
 
-### 4. Set connection info for your REDCap project in the database
+### 2. Set connection info for your REDCap project
 
 If you run your Django site and go to the Django admin section, you should be able to see
 the redcap_importer models you just created. 
 
 First you must provide the API URL in the RedcapApiUrl table. 
-- name: anything
-- URL:  should be something like `https://redcap.research.cchmc.org/api/`.
+- **name**: anything
+- **url**:  should be something like `https://redcap.research.cchmc.org/api/`.
 
 Then in the RedcapConnection table, provide information about your project
-- unique_name: anything, but must be alphanumeric/dashes/underscores only
-- note: This unique_name will be used to reference the REDCap project everywhere else in this tool.
-- api_url: Select the URL to use
+- **unique_name**: anything, but must be alphanumeric/dashes/underscores only
+- **note**: This unique_name will be used to reference the REDCap project everywhere else in this tool.
+- **api_url**: Select the URL to use
 
-### 5. Provide your REDCap API key
 You must also provide an API key from REDCap for this project. This can be obtained from the REDCap website. For security reasons, this goes into your Django `settings.py` file instead of into the database. Use the `RedcapConnection.unique_name` you created in step 5 to reference the project.
 
-```
+```python
 REDCAP_API_TOKENS = {
 	'project1': 'ABC...',
 	'project2': 'DEF...',
@@ -140,20 +138,28 @@ DATABASE_ROUTERS = ['project.router.CustomDatabaseRouter']
 
 ### 8. Set up the database for your project
 
-```
-# see a list of all projects you have set up
+
+see a list of all projects you have set up
+```python
 python manage.py redcap_list_connections
+```
 
-# get the latest data dictionary for your project
+get the latest data dictionary for your project
+```python
 python manage.py redcap_get_dd project1
+```
 
-# use the data dictionary to create your model code
+use the data dictionary to create your model code
+```python
+# output model code for project1 to stdout
 python manage.py redcap_write_models project1
 
 # this code can be written directly to the models.py file for your app
 python manage.py redcap_write_models project1 > project1/models.py
+```
 
-# create the database tables for your new models
+create the database tables for your new models
+```python
 python manage.py makemigrations project1
 python manage.py migrate
 ```
