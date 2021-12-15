@@ -38,13 +38,13 @@ You must already have a working Django project. See the
     ]
     ```
     
-2. Run migrations to install redcap_importer system tables
+3. Run migrations to install redcap_importer system tables
 
     ```
     python manage.py migrate
     ```
     
-5. Set connection info for your REDCap project in the database
+4. Set connection info for your REDCap project in the database
 
    - If you run your Django site and go to the Django admin section, you should be able to see
      the redcap_importer models you just created. 
@@ -57,18 +57,18 @@ You must already have a working Django project. See the
       - note: This unique_name will be used to reference the REDCap project everywhere else in this tool.
       - api_url: Select the URL to use
 
-6. Provide your REDCap API key
+5. Provide your REDCap API key
    - You must also provide an API key from REDCap for this project. This can be obtained from the REDCap website. For security reasons, this goes into your Django `settings.py` file instead of into the database. Use the `RedcapConnection.unique_name` you created in step 5 to reference the project.
 
     ```
     REDCAP_API_TOKENS = {
-        'project1': '11111111111111111111111111111111111',
-        'project2': '11111111111111111111111111111111111',
+        'project1': 'ABC...',
+        'project2': 'DEF...',
         ...
     }
     ```
 
-7. Create a new Django app where your database models will go
+6. Create a new Django app where your database models will go
 
     ```
     # give the app the same name as you used in RedcapConnection.unique_name
@@ -83,6 +83,68 @@ You must already have a working Django project. See the
         'project1',
     ]
     ```
+   
+7. (optional) Separate your application data from your patient data using a router
+
+    - Not required, but it's often a good idea to keep your patient data in a separate database from the rest of your Django tables.
+
+    - Set up a second database connection in your `settings.py` for patient data
+
+      ```
+      DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.sqlite3',
+              'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+          },
+          'patient_data': {
+              'ENGINE': 'django.db.backends.sqlite3',
+              'NAME': os.path.join(BASE_DIR, 'patient_data.sqlite3'),
+          },
+      }
+      ```
+
+    - create a file `routers.py`
+
+        ```python
+        patient_data_apps = ['project1', 'project2', ...]
+        
+        class CustomDatabaseRouter:
+            """
+            A router to control all database operations on models in the
+            auth application.
+            """
+            def db_for_read(self, model, **hints):
+                """
+                Attempts to read auth models go to auth_db.
+                """
+                if model._meta.app_label in patient_data_apps:
+                    return 'patient_data'
+                return None
+        
+            def db_for_write(self, model, **hints):
+                """
+                Attempts to write auth models go to auth_db.
+                """
+                if model._meta.app_label in patient_data_apps:
+                    return 'patient_data'
+                return None
+            
+            def allow_migrate(self, db, app_label, model_name=None, **hints):
+                """
+                If not set, migrations will create duplicate tables in all databases.
+                """
+                if app_label in patient_data_apps:
+                    return db == 'patient_data'
+                return db == 'default'
+        
+        
+        ```
+
+    - Give Django the path to your router in `settings.py`
+
+      ```
+      DATABASE_ROUTERS = ['project.router.CustomDatabaseRouter']
+      ```
 
 8. Set up the database for your project
 
