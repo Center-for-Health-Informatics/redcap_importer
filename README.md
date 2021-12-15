@@ -4,13 +4,10 @@ into a relational database using the REDCap API. Data can be imported into any d
 system supported by Django.
 
 The tool will get the data dictionary for the project using the API and generate the Django ORM
-code you need to build your database. The data schema is specific to the REDCap project.
+code you need to build your database. The data schema is specific to the REDCap project:
 
-**non-longitudinal database structure:**
-![database schema for standard project](img/standard_redcap_project.png)
+![database schemas](img/redcap_importer_schemas.png)
 
-**longitudinal database structure:**
-![database schema for longitudinal project](img/longitudinal_redcap_project.png)
 
 ## Set Up a Relational Database for a New Project
 
