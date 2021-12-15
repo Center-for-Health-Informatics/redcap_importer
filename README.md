@@ -9,7 +9,7 @@ code you need to build your database. The data schema is specific to the REDCap 
 ![database schemas](img/redcap_importer_schemas.png)
 
 
-## Set Up a Relational Database for a New Project
+# Set Up a Relational Database for a New Project
 
 You must already have a working Django project. See the [Django documentation](https://www.djangoproject.com/) for how to set up Django.
 
@@ -161,7 +161,7 @@ python manage.py migrate
 
 
 
-## Load Data from REDCap into Your Database
+# Load Data from REDCap into Your Database
 
 Once your database is set up, you can load data anytime using the provided script
 
@@ -169,7 +169,7 @@ Once your database is set up, you can load data anytime using the provided scrip
 python manage.py redcap_load_data project1
 ```
 
-
+# Additional Tasks
 
 ## How do I load partial data?
 
