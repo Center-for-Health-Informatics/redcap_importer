@@ -9,7 +9,7 @@ code you need to build your database. The data schema is specific to the REDCap 
 ![database schemas](img/redcap_importer_schemas.png)
 
 
-# Set Up a Relational Database for a New Project
+# Set Up a Relational Database from a REDCap Project
 
 You must already have a working Django project. See the [Django documentation](https://www.djangoproject.com/) for how to set up Django.
 
@@ -53,7 +53,7 @@ First you must provide the API URL in the RedcapApiUrl table.
 
 Then in the RedcapConnection table, provide information about your project
 - **unique_name**: anything, but must be alphanumeric/dashes/underscores only
-- **note**: This unique_name will be used to reference the REDCap project everywhere else in this tool.
+  - note: This unique_name will be used to reference the REDCap project everywhere else in this tool.
 - **api_url**: Select the URL to use
 
 You must also provide an API key from REDCap for this project. This can be obtained from the REDCap website. For security reasons, this goes into your Django `settings.py` file instead of into the database. Use the `RedcapConnection.unique_name` you created in step 5 to reference the project.
@@ -137,7 +137,6 @@ DATABASE_ROUTERS = ['project.router.CustomDatabaseRouter']
 ```
 
 ### 8. Set up the database for your project
-
 
 see a list of all projects you have set up
 ```python
