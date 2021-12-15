@@ -70,12 +70,12 @@ REDCAP_API_TOKENS = {
 
 ### 6. Create a new Django app where your database models will go
 
+Give the app the same name as you used in `RedcapConnection.unique_name`
 ```
-# give the app the same name as you used in RedcapConnection.unique_name
 python manage.py start_app project1
-
-# and then add the app to your installed apps in settings.py
-
+```
+And then add the app to your installed apps in `settings.py`
+```python
 INSTALLED_APPS = [
 	...
 	'redcap_importer',
@@ -181,7 +181,9 @@ If you don't want to load the entire REDCap project (in order to save time), you
 
 NOTE: The database schema for the entire database is still created. But during the ETL the data will not be loaded.
 
+## How do I customize the database models that were automatically created?
 
+Don't do this. The data load process depends on the database models staying set up how they are. If you need your database set up differently, consider creating a separate database and using these as staging tables.
 
 ## How do I handle changes to the original REDCap project?
 
@@ -201,24 +203,24 @@ python manage.py redcap_change_report project1
 
 To Update your database with the latest version of the REDCap project:
 
-1. import the data dictionary again
-   ```
-   python manage.py redcap_get_dd project1
-   ```
+#### 1. import the data dictionary again
+```
+python manage.py redcap_get_dd project1
+```
 
-2. Update your Django models and database
+#### 2. Update your Django models and database
 
-    ```
-    python manage.py redcap_write_models project1 > project1/models.py
-    python manage.py makemigrations project1
-    python manage.py migrate
-    ```
+```
+python manage.py redcap_write_models project1 > project1/models.py
+python manage.py makemigrations project1
+python manage.py migrate
+```
 
-3. Redownload the latest data
+#### 3. Redownload the latest data
 
-   ```
-   python manage.py redcap_load_data
-   ```
+```
+python manage.py redcap_load_data
+```
 
 
 
