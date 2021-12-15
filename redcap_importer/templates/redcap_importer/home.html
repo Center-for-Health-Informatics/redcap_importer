@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+
+	<h1>REDCap Connections</h1>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Unique Connection Name</th>
+				<th>API URL</th>
+				<th>Primary Key</th>
+				<th>Project Title</th>
+				<th>Longitudinal?</th>
+				<th>Metadata Last Updated</th>
+				<th>Last Download to RDBMS</th>
+				<th>Last Upload to REDCap</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for oConnection in qConnection %}
+				<tr>
+					<td>
+                        <a href="{% url 'redcap_importer:project_details_events' oConnection.projectmetadata.id %}">
+                            {{ oConnection.unique_name }}
+                        </a>
+                    </td>
+					<td>{{ oConnection.api_url }}</td>
+					<td>{{ oConnection.projectmetadata.primary_key_field }}</td>
+					<td>
+						{% if oConnection.has_project %}
+                            {{ oConnection.projectmetadata.project_title }}
+						{% endif %}
+					</td>
+					<td>{{ oConnection.projectmetadata.is_longitudinal }}</td>
+					<td>{{ oConnection.projectmetadata.date_last_updated_metadata }}</td>
+					<td>
+						{% if oConnection.projectmetadata.date_last_downloaded_data %}
+                            {{ oConnection.projectmetadata.date_last_downloaded_data }}
+						{% else %}
+							[never]
+						{% endif %}
+						
+					</td>
+					<td>{{ oConnection.projectmetadata.date_last_uploaded_data|default_if_none:'[never]' }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	
+{% endblock %}
+
+

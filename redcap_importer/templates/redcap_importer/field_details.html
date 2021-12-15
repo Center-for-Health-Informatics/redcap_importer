@@ -1,0 +1,98 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+
+	<nav aria-label="breadcrumb">
+ 		<ol class="breadcrumb">
+    		<li class="breadcrumb-item"><a href="{% url 'redcap_importer:home' %}">REDCap Connection List</a></li>
+    		<li class="breadcrumb-item">
+    			<a href="{% url 'redcap_importer:project_details_events' data_source oProject.id %}">
+    				{{ oProject }}
+    			</a>
+    		</li>
+    		<li class="breadcrumb-item">
+    			<a href="{% url 'redcap_importer:instrument_details' data_source oProject.id oField.instrument.id %}">
+    				{{ oField.instrument }}
+    			</a>
+    		</li>
+    		<li class="breadcrumb-item active" aria-current="page">{{ oField }}</li>
+  		</ol>
+	</nav>
+
+	<h1>{{ oField }}</h1>
+	
+	<hr>
+	<h2>Field Details</h2>
+	<table class="table table-dark">
+		<thead>
+			<tr>
+				<th>Field</th>
+				<th>Label</th>
+				<th>Project</th>
+				<th>Instrument</th>
+				<th>Data Type</th>
+			</tr>
+		</thead>
+		<tbody>
+				<tr>
+					<td>{{ oField.unique_name }}</td>
+					<td>{{ oField.label }}</td>
+					<td>{{ oProject.project_title }}</td>
+					<td>{{ oField.instrument.unique_name }}</td>
+					<td>{{ oField.django_data_type }}</td>
+				</tr>
+		</tbody>
+	</table>
+	
+	<hr>
+	
+	
+	
+	<div class="row">
+		<div class="col-sm-6">
+			<h3>Statistics</h3>
+			<p class=text-info>Note: Min and max won't be correct for numbers if the field data type is set to Text.</p>
+			<table class="table table-sm">
+				{% for key, stat in stats.items %}
+					<tr>
+						<th>{{ key }}</th>
+						<td>{{ stat }}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+		
+		<div class="col-sm-6">
+			<h3>Top 10 Values</h3>
+			<table class="table table-sm">
+				<thead>
+					<tr>
+						<th>Value</th>
+						<th>Record Count</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for key, count in all_counts.items %}
+						<tr>
+							<td>{{ key|default_if_none:'[null]' }}</td>
+							<td>{{ count }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+			
+	
+	<hr>
+	<h2>All Values</h2>
+	{% for field_value in field_values %}
+		{{ field_value|default_if_none:'' }} | 
+	{% endfor %}
+	
+	
+	
+{% endblock %}
+
+
