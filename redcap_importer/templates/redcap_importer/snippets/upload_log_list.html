@@ -1,0 +1,40 @@
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Log ID</th>
+            <th>User</th>
+            <th>REDCap Project</th>
+            <th>Status</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Duration</th>
+            <th>Queries Run</th>
+            <th>Comment</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for oLog in qLog %}
+            <tr>
+                <td>{{ oLog.id }}</td>
+                <td>{{ oLog.user|default:'' }}</td>
+                <td>{{ oLog.redcap_project }}</td>
+                <td>
+                    {% if oLog.status == oLog.STATUS_UPLOAD_STARTED %}
+                        <strong class="text-warning">{{ oLog.status }}</strong>
+                    {% elif oLog.status == oLog.STATUS_UPLOAD_COMPLETE %}
+                        <strong class="text-success">{{ oLog.status }}</strong>
+                    {% elif oLog.status == oLog.STATUS_UPLOAD_FAILED %}
+                        <strong class="text-danger">{{ oLog.status }}</strong>
+                    {% else %}
+                        <strong class="text-info">{{ oLog.status }}</strong>
+                    {% endif %}
+                </td>
+                <td>{{ oLog.start_date }}</td>
+                <td>{{ oLog.end_date|default:'' }}</td>
+                <td>{{ oLog.get_duration|default:'' }}</td>
+                <td>{{ oLog.query_count|default:'' }}</td>
+                <td>{{ oLog.comment|truncatechars:400 }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -21,6 +21,8 @@ urlpatterns = [
    path('projects/<int:project_id>/fields/<int:field_id>', views.field_details, name='field_details'),
    
    path('projects/<int:project_id>/record/<str:record_id>', views.redcap_record, name='redcap_record'),
+
+   path('ajax/recent-upload-list', views.ajax_recent_upload_list, name='ajax_recent_upload_list'),
    
    path('', views.home, name='home'),
 ]

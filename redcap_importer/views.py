@@ -1,4 +1,4 @@
-
+import time
 
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -6,8 +6,12 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.template.loader import render_to_string
+from django.http import JsonResponse
 
 from . import models
+
+
 
 
 @login_required
@@ -100,6 +104,19 @@ def redcap_record(request, project_id, record_id, data_source='django'):
         'data_source' : data_source,
     }
     return render(request, 'redcap_importer/redcap_record.html', context)
+
+
+@login_required
+def ajax_recent_upload_list(request):
+    # time.sleep(1)       # if this runs too fast, the user can't see that it updated
+    context = {}
+    context["qLog"] = models.EtlLog.objects.filter(
+        status__in=[models.EtlLog.STATUS_UPLOAD_STARTED, models.EtlLog.STATUS_UPLOAD_FAILED,
+                    models.EtlLog.STATUS_UPLOAD_COMPLETE]
+    )[:100]
+    response = {}
+    response["html"] = render_to_string('redcap_importer/snippets/upload_log_list.html', context)
+    return JsonResponse(response)
     
     
     
