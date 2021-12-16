@@ -49,7 +49,9 @@ the redcap_importer models you just created.
 
 First you must provide the API URL in the RedcapApiUrl table. 
 - **name**: anything
-- **url**:  should be something like `https://redcap.research.cchmc.org/api/`.
+- **url**:  the URL for the REDCap API
+  - CCHMC: `https://redcap.research.cchmc.org/api/`
+  - UC Health: `https://survey.uchealth.com/redcap/api/`
 
 Then in the RedcapConnection table, provide information about your project
 - **unique_name**: anything, but must be alphanumeric/dashes/underscores only
