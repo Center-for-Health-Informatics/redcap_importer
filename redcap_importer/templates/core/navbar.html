@@ -1,0 +1,83 @@
+{% load static %}
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="margin-bottom:20px;">
+  <a class="navbar-brand" href="{% url 'redcap_importer:home' %}" style="padding:0;font-size:1.4em;">
+  	<img src="{% static 'redcap_importer/img/uc_curved_logo.png' %}" alt="" height="45" width="45">
+  	{{ SITE_TITLE }} &nbsp;
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+
+
+  <div class="collapse navbar-collapse" id="navbarColor01">
+
+
+
+    <ul class="navbar-nav mr-auto">
+        {% comment %}
+	    <li class="nav-item {% if current_page == 'home' %}active{% endif %}">
+	    	<a class="nav-link" href="{% url 'home' %}">
+	        	  Home
+	        	  {% if current_page == 'home' %}<span class="sr-only">(current)</span>{% endif %}
+	          </a>
+	    </li>
+	    {% endcomment %}
+    </ul>
+
+
+    <ul class="navbar-nav">
+    	{% if user.is_authenticated %}
+    		<li class="nav-item dropdown">
+		        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		          {{ user }}
+		        </a>
+		        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+		          {% if user.is_staff %}
+		          	<a class="dropdown-item" href="{% url 'admin:index' %}">Admin Backend</a>
+		          {% endif %}
+		        </div>
+		      </li>
+    	{% endif %}
+    </ul>
+
+    {% comment %}
+    <ul class="navbar-nav">
+      {% if user.is_authenticated %}
+      		{% if user.is_staff %}
+	      	  <li class="nav-item">
+		        <a class="nav-link" href="{% url 'intranet:home' %}">
+		        	Intranet
+		        </a>
+		      </li>
+		    {% endif %}
+
+	      <li class="nav-item dropdown">
+	        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	          {{ user.get_full_name }}
+	        </a>
+	        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+	          {% if user.is_staff %}
+	          	<a class="dropdown-item" href="{% url 'admin:index' %}">Admin Backend</a>
+	          {% endif %}
+	          <a class="dropdown-item" target="_blank"
+	          	href="https://chi-tools.uc.edu/feedback/?resource=customer_portal&submitter_name={{user.get_full_name}}&submitter_email={{user.email}}">
+	          	Website Feedback
+	          </a>
+	          <a class="dropdown-item" href="{% url 'user_manager:logout' %}">Logout</a>
+	        </div>
+	      </li>
+	  {% elif current_page != 'login' %}
+	      <li class="nav-item">
+	        <a class="nav-link" href="{% url 'user_manager:login' %}">
+	        	Sign in
+	        </a>
+	      </li>
+	  {% endif %}
+
+	</ul>
+	{% endcomment %}
+  </div>
+</nav>

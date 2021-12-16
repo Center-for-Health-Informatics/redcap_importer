@@ -1,0 +1,40 @@
+<ul class="pagination">
+    {% if pObj.has_previous %}
+    	<li class="page-item">
+        	<a class="page-link" href="?page=1"><i class="fa fa-fast-forward fa-lg fa-rotate-180"></i> first</a>
+        </li>
+        <li class="page-item">
+        	<a class="page-link" href="?page={{ pObj.previous_page_number }}"><i class="fa fa-step-forward fa-lg fa-rotate-180"></i> previous</a>
+        </li>
+    {% else %}
+    	<li class="page-item disabled">
+        	<a class="page-link" href="#"><i class="fa fa-fast-forward fa-lg fa-rotate-180"></i> first</a>
+        </li>
+        <li class="page-item disabled">
+        	<a class="page-link" href="#"><i class="fa fa-step-forward fa-lg fa-rotate-180"></i> previous</a>
+        </li>
+    {% endif %}
+
+    <li class="page-item active">
+        <a class="page-link" href="#">
+        	Items <span class="fa-lg">{{ pObj.start_index }}</span> - <span class="fa-lg">{{ pObj.end_index }}</span>
+        	of <span class="fa-lg">{{ pObj.paginator.count }}</span>
+        </a>
+    </li>
+
+    {% if pObj.has_next %}
+    	<li class="page-item">
+        	<a class="page-link" href="?page={{ pObj.next_page_number }}">next <i class="fa fa-step-forward fa-lg"></i></a>
+        </li>
+        <li class="page-item">
+        	<a  class="page-link" href="?page={{ pObj.paginator.num_pages }}">last <i class="fa fa-fast-forward fa-lg"></i></a>
+        </li>
+    {% else %}
+    	<li class="page-item disabled">
+        	<a class="page-link" href="#">next <i class="fa fa-step-forward fa-lg"></i></a>
+        </li>
+        <li class="page-item disabled">
+        	<a  class="page-link" href="#">last <i class="fa fa-fast-forward fa-lg"></i></a>
+        </li>
+    {% endif %}
+</ul>

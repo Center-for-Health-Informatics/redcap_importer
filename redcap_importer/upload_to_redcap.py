@@ -91,7 +91,7 @@ class UploadToRedcap():
 
     def run_request(self, content, addl_options={}):
         addl_options['content'] = content
-        addl_options['token'] = self.connection.api_token
+        addl_options['token'] = self.connection.get_api_token()
         addl_options['format'] = 'json'
         addl_options['returnFormat'] = 'json'
         # print(addl_options)

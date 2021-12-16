@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def run_request(self, content, oConnection, addl_options={}):
         addl_options['content'] = content
-        addl_options['token'] = oConnection.api_token
+        addl_options['token'] = oConnection.get_api_token()
         addl_options['format'] = 'json'
         addl_options['returnFormat'] = 'json'
         return requests.post(oConnection.api_url.url, addl_options).json()
@@ -27,7 +27,7 @@ class Command(BaseCommand):
         connection_name = options['connection_name']
         
         # get connection and delete existing project
-        oConnection = models.RedcapConnection.objects.get(name=connection_name)
+        oConnection = models.RedcapConnection.objects.get(unique_name=connection_name)
         try:
             oConnection.projectmetadata.delete()
         except:

@@ -1,0 +1,66 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>CHI | My Website</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootswatch/4.3.1/sandstone/bootstrap.min.css">
+  <link rel="stylesheet" href="{% static 'main/css/bootstrap_overrides.css' %}">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <link type="text/css" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" media="all" />
+  <link rel="icon" type="image/png" href="{% static 'main/img/favicon.ico' %}">
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+
+</head>
+<body>
+
+<script>
+
+	$(document).ready(function(){
+	  $('[data-toggle="popover"]').popover();
+	});
+
+</script>
+
+
+{% if not embedded %}
+	{% include 'core/navbar.html' %}
+{% endif %}
+
+
+
+
+<div id="content" class="container-fluid" style="{% if not embedded %}min-height:80vh;{% endif %}max-width: 1800px;">
+	{% include 'core/messages.html' %}
+	{% block content %}{% endblock %}
+</div>
+
+
+
+
+{% if not embedded %}
+	<footer class="container-fluid" style="border-top:solid 1px #b3b3b3; margin:10px auto;padding-top:11px;">
+	    <div style="float:right">
+	    	<a href="http://uc.edu"><img src="{% static 'redcap_importer/img/uc.png' %}" alt="UC logo" width="131" height="60"></a>
+	    </div>
+	    <div style="color:#3e3f3a">
+	    	<div style="font-size:23px; padding-top:9px;">
+	    		<a href="https://med.uc.edu/chi" style="color:#3e3f3a" class="no-underline">UC Center for Health Informatics</a>
+	    	</div>
+	    	<a href="https://med.uc.edu/bmi" style="color:#3e3f3a" class="no-underline">
+	    		Dept. of Biomedical Informatics
+	    	</a>
+	    	|
+	    	<a href="https://med.uc.edu/" style="color:#3e3f3a" class="no-underline">
+	    		College of Medicine
+	    	</a>
+	    </div>
+	</footer>
+{% endif %}
+
+</body>
+</html>
