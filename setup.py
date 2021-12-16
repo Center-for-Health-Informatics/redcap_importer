@@ -15,5 +15,6 @@ setup(
         "django-crispy-forms",
         "requests",
         "python-dateutil",
+        "dateparser",
     ],
 )
