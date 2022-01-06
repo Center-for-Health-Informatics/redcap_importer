@@ -1,12 +1,18 @@
-
+ 
 The redcap_importer is a Django app that can be used to import a project from REDCap
 into a relational database using the REDCap API. Data can be imported into any database
 system supported by Django.
 
 The tool will get the data dictionary for the project using the API and generate the Django ORM
-code you need to build your database. The data schema is specific to the REDCap project:
+code you need to build your database.
+
+# Data Schema
+
+The data schema in the database is specific to the REDCap project:
 
 ![database schemas](img/redcap_importer_schemas.png)
+
+Some REDCap fields allow multiple values to be chosen. In this case, there will be a lookup table for each multi-choice field with a name like `my_instrument_my_field_lookup`.
 
 
 # Set Up a Relational Database from a REDCap Project
