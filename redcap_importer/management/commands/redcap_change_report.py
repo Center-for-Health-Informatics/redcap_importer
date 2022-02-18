@@ -164,7 +164,7 @@ class Command(BaseCommand):
 #                     oInstrument.save()
             
         
-        # fields
+        # check for new fields or changes to a field
         response = self.run_request('metadata', oConnection)
         loaded_fields = []
         for entry in response:
@@ -182,6 +182,13 @@ class Command(BaseCommand):
                 ).first()
                 if not oField:
                     output.append("New field: {}.{}".format(oInstrument.unique_name, entry['field_name']))
+                else:
+                    # check if lookup values have changed
+                    if json.dumps(field_display_lookup) != oField.field_display_lookup:
+                        output.append("Field '{}' lookup values have changed".format(oInstrument.unique_name, entry['field_name']))
+                        output.append("OLD: " + oField.field_display_lookup)
+                        output.append("NEW: " + json.dumps(field_display_lookup))
+
                     
         # check for missing fields
         for oInstrument in models.InstrumentMetadata.objects.filter(project=oProject):
