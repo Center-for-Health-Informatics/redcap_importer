@@ -31,8 +31,8 @@
                 </td>
                 <td>{{ oLog.start_date }}</td>
                 <td>{{ oLog.end_date|default:'' }}</td>
-                <td>{{ oLog.get_duration|default:'' }}</td>
-                <td>{{ oLog.query_count|default:'' }}</td>
+                <td>{{ oLog.get_duration|default_if_none:'' }}</td>
+                <td>{{ oLog.query_count|default_if_none:'' }}</td>
                 <td>{{ oLog.comment|truncatechars:400 }}</td>
             </tr>
         {% endfor %}

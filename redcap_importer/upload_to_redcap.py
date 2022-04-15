@@ -17,12 +17,13 @@ class UploadToRedcap():
         - data must be set up in the structure that the REDCap API expects
     """
 
-    def __init__(self, redcap_project_name, create_log_entry=True, batch_size=500, user=None):
+    def __init__(self, redcap_project_name, create_log_entry=True, batch_size=500, user=None, initial_comment=""):
         self.connection = RedcapConnection.objects.get(unique_name=redcap_project_name)
         self.create_log_entry = create_log_entry
         self.query_count = 0
         self.batch_size = batch_size
         self.user = user
+        self.initial_comment = initial_comment
 
     def start_log_entry(self):
         self.log = EtlLog(
@@ -32,12 +33,17 @@ class UploadToRedcap():
         )
         if self.user:
             self.log.user = self.user.username
+        if self.initial_comment:
+            self.log.comment = self.initial_comment
         self.log.save()
 
     def finish_log_entry(self, error_msg=None):
         if error_msg:
             self.log.status = EtlLog.STATUS_UPLOAD_FAILED
-            self.log.comment = error_msg
+            if self.log.comment:
+                self.log.comment = self.log.comment + "\n" + error_msg
+            else:
+                self.log.comment = error_msg
         else:
             self.log.status = EtlLog.STATUS_UPLOAD_COMPLETE
         self.log.query_count = self.query_count
