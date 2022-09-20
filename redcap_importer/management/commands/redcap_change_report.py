@@ -224,10 +224,12 @@ class Command(BaseCommand):
     def _process_select_field_entry(self, entry):
         options = entry['select_choices_or_calculations'].split('|')
         lookup_data = {}
-        for option in options:
-            option_id = option.split(',', 1)[0].strip().lower()
-            option_value = option.split(',', 1)[1].strip()
-            lookup_data[option_id] = option_value
+        # if no options set, will come back as [""] and should be skipped
+        if options[0]:
+            for option in options:
+                option_id = option.split(',', 1)[0].strip().lower()
+                option_value = option.split(',', 1)[1].strip()
+                lookup_data[option_id] = option_value
         return ('TextField', lookup_data)
         
     def _process_text_field_entry(self, entry):
