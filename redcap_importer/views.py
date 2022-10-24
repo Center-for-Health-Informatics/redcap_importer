@@ -8,13 +8,23 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import PermissionDenied
 
 from . import models
 
 
-
+def user_can_view_redcap_importer(user):
+    """
+    Superusers and users belonging to the Django group "view redcap_importer" can see all
+    redcap_importer views. This gives full access to any data imported from REDCap!
+    """
+    if user.groups.filter(name='view redcap_importer').exists() or user.is_superuser:
+        return True
+    raise PermissionDenied()
 
 @login_required
+@user_passes_test(user_can_view_redcap_importer)
 def home(request):
     qConnection = models.RedcapConnection.objects.all()
     context = {
@@ -23,8 +33,8 @@ def home(request):
     return render(request, 'redcap_importer/home.html', context)
 
 
-
 @login_required
+@user_passes_test(user_can_view_redcap_importer)
 def project_details_events(request, project_id, data_source='django'):
     oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     context = {
@@ -37,6 +47,7 @@ def project_details_events(request, project_id, data_source='django'):
     return render(request, 'redcap_importer/project_details_events_multi_arm.html', context)
 
 @login_required
+@user_passes_test(user_can_view_redcap_importer)
 def project_details_instruments(request, project_id, data_source='django'):
     oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     context = {
@@ -47,6 +58,7 @@ def project_details_instruments(request, project_id, data_source='django'):
     return render(request, 'redcap_importer/project_details_instruments.html', context)
 
 @login_required
+@user_passes_test(user_can_view_redcap_importer)
 def project_details_records(request, project_id, data_source='django'):
     oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     ProjectRoot = oProject.get_actual_project_root_model()
@@ -63,8 +75,8 @@ def project_details_records(request, project_id, data_source='django'):
 
 
 
-
 @login_required
+@user_passes_test(user_can_view_redcap_importer)
 def instrument_details(request, project_id, instrument_id, data_source='django'):
     oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     oInstrument = get_object_or_404(models.InstrumentMetadata, pk=instrument_id)
@@ -76,6 +88,7 @@ def instrument_details(request, project_id, instrument_id, data_source='django')
     return render(request, 'redcap_importer/instrument_details.html', context)
 
 @login_required
+@user_passes_test(user_can_view_redcap_importer)
 def field_details(request, project_id, field_id, data_source='django'):
     oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     oField = get_object_or_404(models.FieldMetadata, pk=field_id)
@@ -93,6 +106,7 @@ def field_details(request, project_id, field_id, data_source='django'):
     return render(request, 'redcap_importer/field_details.html', context)
 
 @login_required
+@user_passes_test(user_can_view_redcap_importer)
 def redcap_record(request, project_id, record_id, data_source='django'):
     oProject = get_object_or_404(models.ProjectMetadata, pk=project_id)
     ProjectRoot = oProject.get_actual_project_root_model()
