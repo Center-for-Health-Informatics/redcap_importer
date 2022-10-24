@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="redcap_importer",
-    version="1.0.3",
+    version="1.0.4",
     description="Redcap Importer tool source",
     url="https://github.com/Center-for-Health-Informatics/redcap_importer",
     author="John Meinken",
