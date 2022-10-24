@@ -14,23 +14,33 @@ from django.conf import settings
 
 class RedcapApiUrl(models.Model):
     name                        = models.CharField(max_length=255, unique=True)
-    url                         = models.URLField(unique=True)
+    url                         = models.URLField(unique=True, verbose_name="URL",
+                                    help_text="write full path to api with ending backslash (ex. \"https://redcap.research.cchmc.org/api/\")")
     
     def __str__(self):
         return '{} ({})'.format(self.name, self.url)
+
+    class Meta:
+        verbose_name = "REDCap API URL"
     
 
 
 
 class RedcapConnection(models.Model):
     unique_name                 = models.SlugField(unique=True,
-                                        help_text='A unique reference for this connection and associated Django app')
+                                        help_text='A unique reference for this connection and associated Django app.'
+                                                  'It does not need to be the exact name of the REDCap project - that '
+                                                  'will be determined by the API key you specify in your '
+                                                  'settings file.')
     partial_load                = models.BooleanField(default=False,
                                         help_text='If True, only instruments in IncludeInstrument list will be loaded.')
-    api_url                     = models.ForeignKey('RedcapApiUrl', on_delete=models.PROTECT)
+    api_url                     = models.ForeignKey('RedcapApiUrl', on_delete=models.PROTECT, verbose_name="API URL")
     
     def __str__(self):
         return self.unique_name
+
+    class Meta:
+        verbose_name = "REDCap project connection"
 
     def get_api_token(self):
         """
@@ -41,8 +51,6 @@ class RedcapConnection(models.Model):
             raise KeyError('No API key found for {} in your Django settings'.format(self.unique_name))
         return tokens[self.unique_name]
 
-
-    
     def has_project(self):
         return hasattr(self, 'projectmetadata')
 
@@ -85,6 +93,9 @@ class ProjectMetadata(models.Model):
     
     def __str__(self):
         return 'PROJECT: {}'.format(self.project_title)
+
+    class Meta:
+        verbose_name_plural = "project metadata"
     
     def get_actual_project_root_model(self):
         app_name = self.connection.unique_name
@@ -141,6 +152,7 @@ class ArmMetadata(models.Model):
     class Meta:
         unique_together = (("project", "arm_number"),)
         ordering = ('arm_number', )
+        verbose_name_plural = "arm metadata"
             
     
 class EventMetadata(models.Model):
@@ -154,6 +166,7 @@ class EventMetadata(models.Model):
     class Meta:
         unique_together = (("project", "unique_name"),)
         ordering = ('ordering', )
+        verbose_name_plural = "event metadata"
     
     def __str__(self):
         return 'EVENT: {}'.format(self.unique_name)
@@ -198,6 +211,9 @@ class EventInstrumentMetadata(models.Model):
     
     def __str__(self):
         return '{} : {}'.format(self.event, self.instrument)
+
+    class Meta:
+        verbose_name_plural = "event instrument metadata"
     
 class InstrumentMetadata(models.Model):
     project                     = models.ForeignKey('ProjectMetadata', on_delete=models.CASCADE)
@@ -209,6 +225,7 @@ class InstrumentMetadata(models.Model):
     
     class Meta:
         unique_together = (("project", "unique_name"),)
+        verbose_name_plural = "instrument metadata"
     
     def __str__(self):
         return 'INSTRUMENT: {}'.format(self.unique_name)
@@ -300,6 +317,7 @@ class FieldMetadata(models.Model):
     
     class Meta:
         ordering = ['ordering']
+        verbose_name_plural = "field metadata"
         
     def get_display_lookup(self):
         lookup = json.loads(self.field_display_lookup)
@@ -486,7 +504,7 @@ class EtlLog(models.Model):
         (STATUS_UPLOAD_FAILED, STATUS_UPLOAD_FAILED),
         (STATUS_UPLOAD_COMPLETE, STATUS_UPLOAD_COMPLETE),
     )
-    redcap_project = models.CharField(max_length=255)
+    redcap_project = models.CharField(max_length=255, verbose_name="REDCap project")
     start_date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
 
@@ -517,3 +535,4 @@ class EtlLog(models.Model):
 
     class Meta:
         ordering = ["-start_date"]
+        verbose_name = "ETL log"
