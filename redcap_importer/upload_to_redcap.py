@@ -6,7 +6,7 @@ import dateparser
 from redcap_importer.models import RedcapConnection, FieldMetadata, EtlLog
 
 
-class UploadToRedcap():
+class UploadToRedcap:
     """
     Helps with uploading data to a REDCap project using the API.
 
@@ -17,22 +17,33 @@ class UploadToRedcap():
         - data must be set up in the structure that the REDCap API expects
     """
 
-    def __init__(self, redcap_project_name, create_log_entry=True, batch_size=500, user=None, initial_comment=""):
+    def __init__(
+        self,
+        redcap_project_name,
+        create_log_entry=True,
+        batch_size=500,
+        user=None,
+        initial_comment="",
+        file_name=None,
+    ):
         self.connection = RedcapConnection.objects.get(unique_name=redcap_project_name)
         self.create_log_entry = create_log_entry
         self.query_count = 0
         self.batch_size = batch_size
         self.user = user
+        self.file_name = file_name
         self.initial_comment = initial_comment
 
     def start_log_entry(self):
         self.log = EtlLog(
-            redcap_project = self.connection.unique_name,
-            start_date = datetime.datetime.now(),
-            status = EtlLog.STATUS_UPLOAD_STARTED,
+            redcap_project=self.connection.unique_name,
+            start_date=datetime.datetime.now(),
+            status=EtlLog.STATUS_UPLOAD_STARTED,
         )
         if self.user:
             self.log.user = self.user.username
+        if self.file_name:
+            self.log.file_name = self.file_name
         if self.initial_comment:
             self.log.comment = self.initial_comment
         self.log.save()
@@ -49,7 +60,6 @@ class UploadToRedcap():
         self.log.query_count = self.query_count
         self.log.end_date = datetime.datetime.now()
         self.log.save()
-
 
     def upload(self, dataset):
         """
@@ -83,23 +93,25 @@ class UploadToRedcap():
 
     def upload_batch(self, upload_records):
         upload_json = json.dumps(upload_records)
-        response = self.run_request('record', {
-            'data': upload_json,
-            'overwriteBehavior': 'overwrite',  # "normal" or "overwrite"
-        })
+        response = self.run_request(
+            "record",
+            {
+                "data": upload_json,
+                "overwriteBehavior": "overwrite",  # "normal" or "overwrite"
+            },
+        )
         print(str(response))
         # count will show number of subjects affected, not number of records uploaded
         # if 'count' not in response or response['count'] != len(upload_records):
         #     raise Exception(str(response))
-        if 'count' not in response or response['count'] == 0:
+        if "count" not in response or response["count"] == 0:
             raise Exception(str(response))
 
-
     def run_request(self, content, addl_options={}):
-        addl_options['content'] = content
-        addl_options['token'] = self.connection.get_api_token()
-        addl_options['format'] = 'json'
-        addl_options['returnFormat'] = 'json'
+        addl_options["content"] = content
+        addl_options["token"] = self.connection.get_api_token()
+        addl_options["format"] = "json"
+        addl_options["returnFormat"] = "json"
         # print(addl_options)
         self.query_count += 1
         return requests.post(self.connection.api_url.url, addl_options).json()
@@ -111,20 +123,17 @@ class UploadToRedcap():
         for key, val in record.items():
             # try to look up field type
             oField = FieldMetadata.objects.filter(
-                instrument__project__connection=self.connection,
-                unique_name=key
+                instrument__project__connection=self.connection, unique_name=key
             ).first()
 
-            if val is None or val == '':
-                out_record[key] = ' '
+            if val is None or val == "":
+                out_record[key] = " "
             elif oField and oField.django_data_type == "DateField":
                 try:
                     date_val = dateparser.parse(val)
                     out_record[key] = date_val.strftime("%Y-%m-%d")
                 except Exception:
-                    raise Exception("Unable to parser value {} for date field {}".format(
-                        val, key
-                    ))
+                    raise Exception("Unable to parser value {} for date field {}".format(val, key))
             elif isinstance(val, datetime.date):
                 out_record[key] = val.strftime("%Y-%m-%d")
 
