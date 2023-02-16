@@ -39,6 +39,7 @@ class UploadToRedcap:
             redcap_project=self.connection.unique_name,
             start_date=datetime.datetime.now(),
             status=EtlLog.STATUS_UPLOAD_STARTED,
+            direction=EtlLog.Direction.UPLOAD,
         )
         if self.user:
             self.log.user = self.user.username
@@ -46,6 +47,10 @@ class UploadToRedcap:
             self.log.file_name = self.file_name
         if self.initial_comment:
             self.log.comment = self.initial_comment
+        self.log.save()
+
+    def update_log_entry(self):
+        self.log.query_count = self.query_count
         self.log.save()
 
     def finish_log_entry(self, error_msg=None):
@@ -114,6 +119,8 @@ class UploadToRedcap:
         addl_options["returnFormat"] = "json"
         # print(addl_options)
         self.query_count += 1
+        if self.create_log_entry:
+            self.update_log_entry()
         return requests.post(self.connection.api_url.url, addl_options).json()
         # print(oConnection.api_url.url, addl_options)
         # return {}

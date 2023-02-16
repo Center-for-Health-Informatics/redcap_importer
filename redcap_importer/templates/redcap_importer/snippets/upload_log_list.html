@@ -2,13 +2,15 @@
     <thead>
         <tr>
             <th>Log ID</th>
+            <th>File Name</th>
             <th>User</th>
             <th>REDCap Project</th>
             <th>Status</th>
+            <th>Last Modified</th>
+            <th>Queries Run</th>
             <th>Start Date</th>
             <th>End Date</th>
             <th>Duration</th>
-            <th>Queries Run</th>
             <th>Comment</th>
         </tr>
     </thead>
@@ -16,6 +18,7 @@
         {% for oLog in qLog %}
             <tr>
                 <td>{{ oLog.id }}</td>
+                <td>{{ oLog.file_name }}</td>
                 <td>{{ oLog.user|default:'' }}</td>
                 <td>{{ oLog.redcap_project }}</td>
                 <td>
@@ -29,10 +32,11 @@
                         <strong class="text-info">{{ oLog.status }}</strong>
                     {% endif %}
                 </td>
-                <td>{{ oLog.start_date }}</td>
-                <td>{{ oLog.end_date|default:'' }}</td>
-                <td>{{ oLog.get_duration|default_if_none:'' }}</td>
+                <td>{{ oLog.modified|date:'Y-m-d g:i:s A' }}</td>
                 <td>{{ oLog.query_count|default_if_none:'' }}</td>
+                <td>{{ oLog.start_date|date:'Y-m-d g:i A' }}</td>
+                <td>{{ oLog.end_date|date:'Y-m-d g:i A'|default:'' }}</td>
+                <td>{{ oLog.get_duration|default_if_none:'' }}</td>
                 <td>{{ oLog.comment|truncatechars:400 }}</td>
             </tr>
         {% endfor %}
