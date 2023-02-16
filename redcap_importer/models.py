@@ -530,8 +530,15 @@ class EtlLog(models.Model):
         (STATUS_UPLOAD_FAILED, STATUS_UPLOAD_FAILED),
         (STATUS_UPLOAD_COMPLETE, STATUS_UPLOAD_COMPLETE),
     )
+
+    class Direction(models.TextChoices):
+        DOWNLOAD = "download", "download from REDCap"
+        UPLOAD = "upload", "upload to REDCap"
+
     redcap_project = models.CharField(max_length=255, verbose_name="REDCap project")
     start_date = models.DateTimeField()
+    modified = models.DateTimeField(auto_now=True)
+    direction = models.CharField(max_length=12, blank=True, null=True, choices=Direction.choices)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     end_date = models.DateTimeField(blank=True, null=True)
     instruments_loaded = models.TextField(blank=True, null=True)
@@ -540,6 +547,9 @@ class EtlLog(models.Model):
     file_name = models.TextField(
         blank=True, null=True, help_text="the file name if uploading a file"
     )
+    # thread_name = models.TextField(
+    #     blank=True, null=True, help_text="identifier for thread if using Python threading"
+    # )
     comment = models.TextField(blank=True, null=True)
 
     @classmethod
