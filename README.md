@@ -268,7 +268,7 @@ python manage.py migrate
 #### 3. Redownload the latest data
 
 ```
-python manage.py redcap_load_data
+python manage.py redcap_load_data project1
 ```
 
 
