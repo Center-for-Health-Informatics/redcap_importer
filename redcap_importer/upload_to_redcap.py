@@ -134,7 +134,7 @@ class UploadToRedcap:
             ).first()
 
             if val is None or val == "":
-                out_record[key] = " "
+                out_record[key] = ""
             elif oField and oField.django_data_type == "DateField":
                 try:
                     date_val = dateparser.parse(val)
