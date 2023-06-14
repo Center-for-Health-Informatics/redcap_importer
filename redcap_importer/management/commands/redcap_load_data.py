@@ -49,7 +49,11 @@ class Command(BaseCommand):
         addl_options['format'] = 'json'
         addl_options['returnFormat'] = 'json'
         self.query_count += 1
-        return requests.post(oConnection.api_url.url, addl_options).json()
+        response = requests.post(oConnection.api_url.url, addl_options)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Request to {oConnection.projectmetatdata} API failed")
 
     def handle(self, *args, **options):
         connection_name = options['connection_name']
