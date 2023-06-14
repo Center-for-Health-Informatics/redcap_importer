@@ -53,7 +53,7 @@ class Command(BaseCommand):
         if response.status_code == 200:
             return response.json()
         else:
-            raise Exception(f"Request to {oConnection.projectmetatdata} API failed")
+            raise Exception(f"Request to {oConnection.projectmetadata} API failed")
 
     def handle(self, *args, **options):
         connection_name = options['connection_name']
