@@ -6,7 +6,7 @@ from dateutil.parser import parse
 from django.db import models
 from django.apps import apps
 
-from django.conf import settings
+from redcap_importer import redcap_importer_settings as ri_settings
 
 
 class RedcapApiUrl(models.Model):
@@ -48,7 +48,7 @@ class RedcapConnection(models.Model):
         """
         API tokens needs to be provided in the django settings file.
         """
-        tokens = settings.REDCAP_API_TOKENS
+        tokens = ri_settings.REDCAP_API_TOKENS
         if not tokens or self.unique_name not in tokens:
             raise KeyError(
                 "No API key found for {} in your Django settings".format(self.unique_name)
