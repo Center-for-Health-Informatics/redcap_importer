@@ -74,6 +74,14 @@ class RedcapConnection(models.Model):
             response.append(oInclude.instrument_name)
         return response
 
+    def get_all_instruments(self):
+        """Return all instruments for this project, if partial load only returns those"""
+        qInstrument = InstrumentMetadata.objects.filter(project=self.projectmetadata)
+        instrument_names = self.get_instrument_names()
+        if instrument_names:
+            qInstrument = qInstrument.filter(instrument_name__in=instrument_names)
+        return qInstrument
+
 
 class IncludeInstrument(models.Model):
     connection = models.ForeignKey("RedcapConnection", on_delete=models.CASCADE)

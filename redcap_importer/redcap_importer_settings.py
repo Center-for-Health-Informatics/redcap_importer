@@ -25,3 +25,14 @@ REDCAP_API_TOKENS = get_setting("REDCAP_API_TOKENS", {})
 """
 A dict with key->value pairs for each REDCap project RedcapConnection.unique_name->API token.
 """
+
+REDCAP_SQL_ALCHEMY_CONNECTION_STRING = get_setting("REDCAP_SQL_ALCHEMY_CONNECTION_STRING", None)
+"""
+The connection string for the database where the actual redcap snapshot will be stored. This is
+separate from the database where application data and the data dictionary are stored. Supported
+databases are sqlite3, postgresql, and sql_server.
+
+examples: 
+"postgresql://myuser:mypassword@localhost:5432/my_database"
+"sqlite:///C:\\path\\to\\foo.db"
+"""
