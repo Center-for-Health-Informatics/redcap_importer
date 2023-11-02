@@ -68,7 +68,7 @@ class RedcapDatabase:
             table_name,
             self.metadata_obj,
             Column("id", BigInteger, primary_key=True),
-            Column("project_root", ForeignKey("project_root.study_id"), nullable=False),
+            Column("project_root_id", ForeignKey("project_root.study_id"), nullable=False),
             Column("redcap_repeat_instance", Integer),
         )
         # add all columns
@@ -76,15 +76,16 @@ class RedcapDatabase:
             column = Column(
                 oField.get_django_field_name(),
                 map_field_type(oField.django_data_type),
-                index=True,
+                # index=True,       # I'm getting an error if value is too large to index
             )
             instrument_table.append_column(column)
         if not include_lookups:
             return instrument_table
-        field_tables = []
+        field_tables = {}
         for oField in oInstrumentMetadata.fieldmetadata_set.filter(is_many_to_many=True):
             field_table = self.generate_sql_alchemy_table_field_lookup(oField)
-            field_tables.append(field_table)
+            field_name = oField.get_django_field_name()
+            field_tables[field_name] = field_table
         return instrument_table, field_tables
 
     def generate_sql_alchemy_table_field_lookup(self, oFieldMetadata):
@@ -98,7 +99,7 @@ class RedcapDatabase:
             table_name,
             self.metadata_obj,
             Column("id", BigInteger, primary_key=True),
-            Column(instrument_name, ForeignKey(f"{instrument_name}.id"), nullable=False),
+            Column(f"{instrument_name}_id", ForeignKey(f"{instrument_name}.id"), nullable=False),
             Column(field_name, Text),
             Column(f"{field_name}_display_value", Text),
         )

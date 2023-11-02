@@ -269,6 +269,8 @@ class InstrumentMetadata(models.Model):
                 data_exists = True
         if not data_exists:
             return None
+        if "redcap_repeat_instance" in entry and entry["redcap_repeat_instance"] != "":
+            response["redcap_repeat_instance"] = int(entry["redcap_repeat_instance"])
         for oField in self.fieldmetadata_set.all():
             if oField.unique_name in entry:
                 value = entry[oField.unique_name]
@@ -425,6 +427,108 @@ class FieldMetadata(models.Model):
                 return False
             value = entry[self.unique_name]
             return False if value == "" else True
+
+    def get_values_for_m2m_field(self, entry):
+        """
+        returns array of 2 value tuples with (value, display_value)
+        """
+        values = []
+        if self.is_many_to_many:
+            field_names = self._get_many_to_many_redcap_fields()
+            for key, field_name in field_names.items():
+                if entry[field_name] == "1":
+                    value = key
+                    display_value = self.get_display_lookup()[key]
+                    values.append((value, display_value))
+        return values
+
+    def _get_float_value(self, entry):
+        value = None
+        try:
+            value = float(entry[self.unique_name])
+        except ValueError:
+            print(
+                "unable to convert string to float for {}: {}".format(
+                    self.get_django_field_name(), entry[self.unique_name]
+                )
+            )
+        return value
+
+    def _get_integer_value(self, entry):
+        value = None
+        try:
+            value = int(entry[self.unique_name])
+        except ValueError:
+            print(
+                "unable to convert string to integer for {}: {}".format(
+                    self.get_django_field_name(), entry[self.unique_name]
+                )
+            )
+        return value
+
+    def _get_date_value(self, entry):
+        value = None
+        date_str = entry[self.unique_name]
+        if date_str:
+            try:
+                value = parse(date_str)
+            except ValueError:
+                print(
+                    "unable to convert string to date for {}: {}".format(
+                        self.get_django_field_name(), date_str
+                    )
+                )
+        return value
+
+    def _get_boolean_value(self, entry):
+        x = entry[self.unique_name]
+        if x is True or x == 1 or x == "1":
+            value = True
+        elif x is False or x == 0 or x == "0":
+            value = False
+        elif x is None:
+            value = None
+        else:
+            print(
+                "Unrecognized value for boolean field for {}, setting to None: {}".format(
+                    self.get_django_field_name(), entry[self.unique_name]
+                )
+            )
+            value = None
+        return value
+
+    def get_value_for_standard_field(self, entry):
+        value = None
+        display_value = None  # not all fields have display values
+        display_value_lookup = self.get_display_lookup()
+        field_has_display_values = False
+        if display_value_lookup:
+            field_has_display_values = True
+        # ignore fields that are just labels or something that doesn't store a value
+        if not self.unique_name in entry or entry[self.unique_name] == "":
+            return (value, field_has_display_values, display_value)
+        # get a value
+        if self.django_data_type == "FloatField":
+            value = self._get_float_value(entry)
+        elif self.django_data_type == "IntegerField":
+            value = self._get_integer_value(entry)
+        elif self.django_data_type == "DateField":
+            value = self._get_date_value(entry)
+        elif self.django_data_type == "BooleanField":
+            value = self._get_boolean_value(entry)
+        else:
+            value = entry[self.unique_name]
+        # set display value if any
+        if display_value_lookup:
+            try:
+                display_value = display_value_lookup[value.lower()]
+            except KeyError:
+                print(
+                    "key error for {}: {} not in {}".format(
+                        self, value.lower(), display_value_lookup
+                    )
+                )
+        return (value, field_has_display_values, display_value)
 
     def add_value_to_instrument(self, oInstrument, entry):
         if self.is_many_to_many:

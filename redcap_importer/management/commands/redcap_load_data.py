@@ -55,7 +55,58 @@ class Command(BaseCommand):
         connection_name = options["connection_name"]
         oConnection = models.RedcapConnection.objects.get(unique_name=connection_name)
         writer = DbWriter(connection_name, use_staging=False)
+
+        # start logging
         self.print_out(oConnection.projectmetadata, log=True)
         self.query_count = 0
+        self.oEtlLog = models.EtlLog(
+            redcap_project=oConnection.unique_name,
+            start_date=datetime.datetime.now(),
+            status=models.EtlLog.STATUS_ETL_STARTED,
+        )
+        self.oEtlLog.save()
+        # self.start_capture_stdout()
 
         writer.initialize_database()
+
+        # get a list of all primary keys
+        response = self.run_request(
+            "record",
+            oConnection,
+            {
+                "fields": oConnection.projectmetadata.primary_key_field,
+            },
+        )
+        pk_list = []
+        for entry in response:
+            pk = entry[oConnection.projectmetadata.primary_key_field]
+            if not pk in pk_list:
+                pk_list.append(pk)
+
+        # load data for one subject at a time
+        for pk in pk_list:
+            options = {"records[0]": pk}
+            instrument_names = oConnection.get_instrument_names()
+            if instrument_names:
+                for idx, instrument_name in enumerate(instrument_names):
+                    options["forms[{}]".format(idx)] = instrument_name
+            response = self.run_request("record", oConnection, options)
+            for entry in response:
+                writer.load_entry(entry)
+            # close out bulk-insert queues after each subject finishes (night not be necessary)
+            writer.finalize_data()
+
+        writer.finalize_database()
+
+        # finish out logging
+        oConnection.projectmetadata.date_last_downloaded_data = datetime.datetime.now()
+        oConnection.projectmetadata.save()
+        instruments_loaded = oConnection.get_instrument_names()
+        if instruments_loaded:
+            instruments_loaded = "\n".join(instruments_loaded)
+        # self.finish_capture_stdout()
+        self.oEtlLog.end_date = datetime.datetime.now()
+        self.oEtlLog.query_count = self.query_count
+        self.oEtlLog.instruments_loaded = instruments_loaded
+        self.comment = "\n".join(self.log_comments)
+        self.oEtlLog.save()
