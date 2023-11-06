@@ -11,7 +11,8 @@
             <th>Start Date</th>
             <th>End Date</th>
             <th>Duration</th>
-            <th>Comment</th>
+            <th>Last Successful Record #</th>
+            <th>Last Successful Record</th>
         </tr>
     </thead>
     <tbody>
@@ -37,6 +38,12 @@
                 <td>{{ oLog.start_date|date:'Y-m-d g:i A' }}</td>
                 <td>{{ oLog.end_date|date:'Y-m-d g:i A'|default:'' }}</td>
                 <td>{{ oLog.get_duration|default_if_none:'' }}</td>
+                <td>{{ oLog.last_successful_record_number }}</td>
+                {% if oLog.status == oLog.STATUS_UPLOAD_COMPLETE  %}
+                    <td>All records uploaded</td>
+                {% else %}
+                    <td>{{ oLog.last_successful_record|truncatechars:400 }}</td>
+                {% endif %}
                 <td>{{ oLog.comment|truncatechars:400 }}</td>
             </tr>
         {% endfor %}

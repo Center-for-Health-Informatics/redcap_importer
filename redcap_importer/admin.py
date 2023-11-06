@@ -106,6 +106,7 @@ class EtlLogAdmin(admin.ModelAdmin):
         "end_date",
         "get_duration",
         "query_count",
+        "last_successful_record_number",
         "get_loaded_count",
     )
     list_filter = ("direction", "status")
