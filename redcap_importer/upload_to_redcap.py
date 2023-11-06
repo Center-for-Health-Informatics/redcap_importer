@@ -29,6 +29,8 @@ class UploadToRedcap:
         self.connection = RedcapConnection.objects.get(unique_name=redcap_project_name)
         self.create_log_entry = create_log_entry
         self.query_count = 0
+        self.last_successful_record_number = 0
+        self.last_successful_record = ""
         self.batch_size = batch_size
         self.user = user
         self.file_name = file_name
@@ -49,8 +51,13 @@ class UploadToRedcap:
             self.log.comment = self.initial_comment
         self.log.save()
 
-    def update_log_entry(self):
+    def update_log_entry_start_query(self):
         self.log.query_count = self.query_count
+        self.log.save()
+
+    def update_log_entry_finish_query(self):
+        self.log.last_successful_record_number = self.last_successful_record_number
+        self.log.last_successful_record = json.dumps(self.last_successful_record)
         self.log.save()
 
     def finish_log_entry(self, error_msg=None):
@@ -77,7 +84,8 @@ class UploadToRedcap:
         try:
             upload_records = []
             for record in dataset:
-                upload_records.append(self.process_record(record))
+                next_entry = self.process_record(record)
+                upload_records.append(next_entry)
                 if len(upload_records) >= self.batch_size:
                     self.upload_batch(upload_records)
                     upload_records = []
@@ -111,6 +119,11 @@ class UploadToRedcap:
         #     raise Exception(str(response))
         if "count" not in response or response["count"] == 0:
             raise Exception(str(response))
+        else:
+            # need to document the last record that uploaded successfully
+            self.last_successful_record_number += len(upload_records)
+            self.last_successful_record = upload_records[-1]
+            self.update_log_entry_finish_query()
 
     def run_request(self, content, addl_options={}):
         addl_options["content"] = content
@@ -120,7 +133,7 @@ class UploadToRedcap:
         # print(addl_options)
         self.query_count += 1
         if self.create_log_entry:
-            self.update_log_entry()
+            self.update_log_entry_start_query()
         return requests.post(self.connection.api_url.url, addl_options).json()
         # print(oConnection.api_url.url, addl_options)
         # return {}

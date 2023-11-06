@@ -543,6 +543,8 @@ class EtlLog(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
     instruments_loaded = models.TextField(blank=True, null=True)
     query_count = models.IntegerField(blank=True, null=True)
+    last_successful_record_number = models.IntegerField(blank=True, null=True, default=0)
+    last_successful_record = models.TextField(blank=True, null=True)
     user = models.CharField(max_length=255, blank=True, null=True)
     file_name = models.TextField(
         blank=True, null=True, help_text="the file name if uploading a file"
