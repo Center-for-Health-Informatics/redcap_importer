@@ -7,6 +7,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.apps import apps
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from redcap_importer import models
 
@@ -17,7 +19,15 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         self.query_count = 0
         self.log_comments = []  # a list of comments to save with the ETL log
+        # make several attempts to recover from network errors
+        # https://stackoverflow.com/questions/23013220/max-retries-exceeded-with-url-in-requests
+        session = requests.Session()
+        retry = Retry(connect=3, backoff_factor=0.5)
+        adapter = HTTPAdapter(max_retries=retry)
         super().__init__(*args, **kwargs)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        self.session = session
 
     def print_out(self, *args, **kwargs):
         """A wrapper for self.stdout.write() that converts anything into a string"""
@@ -48,7 +58,7 @@ class Command(BaseCommand):
         addl_options["format"] = "json"
         addl_options["returnFormat"] = "json"
         self.query_count += 1
-        return requests.post(oConnection.api_url.url, addl_options).json()
+        return self.session.post(oConnection.api_url.url, addl_options).json()
 
     def handle(self, *args, **options):
         connection_name = options["connection_name"]
@@ -109,6 +119,7 @@ class Command(BaseCommand):
         self.oEtlLog.query_count = self.query_count
         self.oEtlLog.instruments_loaded = instruments_loaded
         self.comment = "\n".join(self.log_comments)
+        self.oEtlLog.status = self.oEtlLog.STATUS_ETL_COMPLETE
         self.oEtlLog.save()
 
     def insert_non_longitudinal(self, entry, oConnection):
