@@ -119,6 +119,7 @@ class Command(BaseCommand):
         self.oEtlLog.query_count = self.query_count
         self.oEtlLog.instruments_loaded = instruments_loaded
         self.comment = "\n".join(self.log_comments)
+        self.oEtlLog.status = self.oEtlLog.STATUS_ETL_COMPLETE
         self.oEtlLog.save()
 
     def insert_non_longitudinal(self, entry, oConnection):
